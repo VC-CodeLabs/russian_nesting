@@ -2,18 +2,20 @@ package main
 
 import (
 	"fmt"
-	"math"
 	"strings"
 	"time"
 )
 
 const DIM_MIN = 1
 
-var DIM_MAX = int(math.Pow(10, 5))
+// var DIM_MAX = int(math.Pow(10, 5))
+// var DIM_MAX = int(math.Pow10(5))
+const DIM_MAX = int(1e5)
 
 const ENV_MIN = 1
 
-var ENV_MAX = DIM_MAX
+// var ENV_MAX = DIM_MAX
+const ENV_MAX = DIM_MAX
 
 type EnvStruct struct {
 	width  int
@@ -23,6 +25,12 @@ type EnvStruct struct {
 type EnvelopesS []EnvStruct
 
 type EnvArray [2]int
+
+// indexes into EnvArray for width & height
+const (
+	WIDTH  = 0
+	HEIGHT = 1
+)
 
 type EnvelopesA [][2]int
 
@@ -36,6 +44,35 @@ func start() time.Time {
 
 func finish(started time.Time) time.Duration {
 	return time.Since(started)
+}
+
+// provides an approximation of good ol' Java ternary operator:
+// <condBool> ? <valueIfTrue> : <valueIfFalse>
+// with one *MAJOR* difference: the <valueIfTrue> and <valueIfFalse>
+// are both eval'd regardless of the <condBool> outcome
+// SOOO don't use anything that has side-effects for 2nd or 3rd args!!!
+//
+// # Java:
+//
+//	int y = 1;
+//	int z = 1;
+//	int a = y < 10 ? y++ : z++;
+//	System.out.println( "y=" + y + " z=" + z );
+//	// console output: y=2 z=1
+//
+// # Golang:
+//
+//	y := 1
+//	z := 1
+//	a := ternary( y < 10, y++, z++ )
+//	fmt.Printf( "y=%d z=%d\n", y, z)
+//	// console output: y=2 z=2
+func ternary[B bool, V int | int64 | float32 | float64 | string](cond bool, ifTrue V, ifFalse V) V {
+	if cond {
+		return ifTrue
+	} else {
+		return ifFalse
+	}
 }
 
 // the rough equivalent of java assert,
@@ -62,6 +99,8 @@ func sanitizeDuration(d time.Duration) string {
 const TEST_RUNS = 100
 
 func testEnvelopeOps() {
+
+	testEnvelopeStructArrayInterOps()
 
 	testEnvelopesArrayOps()
 
@@ -93,8 +132,8 @@ func testEnvelopesArrayOps() {
 		rts := start()
 		for i := 0; i < len(envs); i++ {
 			env := envs[i]
-			envW := env[0]
-			envH := env[1]
+			envW := env[WIDTH]
+			envH := env[HEIGHT]
 			// be sure the read doesn't get optimized out!!!
 			if envW > DIM_MAX || envH > DIM_MAX {
 				fmt.Println("Never!!!")
@@ -172,9 +211,17 @@ func testEnvelopesStructOps() {
 	rtz := time.Duration(float64(rtt/max(rtc, 1)) * float64(time.Nanosecond))
 	fmt.Printf("*** Average time to read [%d]{w#,h#} %15s / %d = %15s (!0 %15s x %d)\n",
 		ENV_MAX, sanitizeDuration(rtd), TEST_RUNS, sanitizeDuration(rta), sanitizeDuration(rtz), rtc)
+}
 
+func testEnvelopeStructArrayInterOps() {
+
+	// verifies we can init either struct or array with the same expression
 	var envA = EnvelopesA{{1, 2}, {3, 4}}
 	var envS = EnvelopesS{{1, 2}, {3, 4}}
 
-	assert(len(envA) == len(envS), "mismatched lengths")
+	assert(len(envA) == len(envS), "mismatched array vs struct lengths")
+	for i := 0; i < len(envA); i++ {
+		assert(envA[i][WIDTH] == envS[i].width, fmt.Sprintf("mismatched env[%d] width", i))
+		assert(envA[i][HEIGHT] == envS[i].height, fmt.Sprintf("mismatched env[%d] height", i))
+	}
 }
