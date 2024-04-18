@@ -1,10 +1,22 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"strings"
 	"time"
 )
+
+var TEST_RUNS int = 10
+
+func main() {
+	testRunPtr := flag.Int("t", TEST_RUNS, "specifies the # times to repeat tests")
+	flag.Parse()
+	if testRunPtr != nil {
+		TEST_RUNS = *testRunPtr
+	}
+	testEnvelopeOps()
+}
 
 const DIM_MIN = 1
 
@@ -33,10 +45,6 @@ const (
 )
 
 type EnvelopesA [][2]int
-
-func main() {
-	testEnvelopeOps()
-}
 
 func start() time.Time {
 	return time.Now()
@@ -92,11 +100,11 @@ func sanitizeDuration(d time.Duration) string {
 	return s
 }
 
-func nanosToDuration[N int64 | float64](nanos N) time.Duration {
+func nanosToDuration[N int | int64 | float64](nanos N) time.Duration {
 	return time.Duration(float64(nanos) * float64(time.Nanosecond))
 }
 
-func nanosAvgToDuration[N int64 | float64](totalNanos N, counter N) time.Duration {
+func nanosAvgToDuration[N int | int64 | float64](totalNanos N, counter N) time.Duration {
 	return nanosToDuration(float64(totalNanos) / float64(counter))
 }
 
@@ -104,15 +112,21 @@ func nanosAvgToDuration[N int64 | float64](totalNanos N, counter N) time.Duratio
 // tests
 //
 
-const TEST_RUNS = 100
+// const TEST_RUNS = 100
 
 func testEnvelopeOps() {
+
+	allTestsStarted := start()
 
 	testEnvelopeStructArrayInterOps()
 
 	testEnvelopesArrayOps()
 
 	testEnvelopesStructOps()
+
+	allTestsDuration := finish(allTestsStarted)
+
+	fmt.Printf("*** All tests completed in %s\n", allTestsDuration)
 
 }
 
@@ -161,17 +175,17 @@ func testEnvelopesArrayOps() {
 		}
 	}
 	writeTestsDuration := nanosToDuration(writeTotalTime)
-	writeTestAverage := nanosAvgToDuration(writeTotalTime, TEST_RUNS)
+	writeTestAverage := nanosAvgToDuration(writeTotalTime, int64(TEST_RUNS))
 	writeTestAvgNonZero := nanosAvgToDuration(writeTotalTime, max(writeTotalCountNonZero, 1))
-	fmt.Printf("*** Average time to make [%d][w#,h#] %15s / %d = %15s (!0 %15s x %d)\n",
+	fmt.Printf("*** Average time to make [%d][w#,h#] %15s / %6d = %15s (!0 %15s x %6d)\n",
 		ENV_MAX,
 		sanitizeDuration(writeTestsDuration), TEST_RUNS, sanitizeDuration(writeTestAverage),
 		sanitizeDuration(writeTestAvgNonZero), writeTotalCountNonZero)
 
 	readTestsDuration := nanosToDuration(readTotalTime)
-	readTestAverage := nanosAvgToDuration(readTotalTime, TEST_RUNS)
+	readTestAverage := nanosAvgToDuration(readTotalTime, int64(TEST_RUNS))
 	readTestAvgNonZero := nanosAvgToDuration(readTotalTime, max(readTotalCountNonZero, 1))
-	fmt.Printf("*** Average time to read [%d][w#,h#] %15s / %d = %15s (!0 %15s x %d)\n",
+	fmt.Printf("*** Average time to read [%d][w#,h#] %15s / %6d = %15s (!0 %15s x %6d)\n",
 		ENV_MAX,
 		sanitizeDuration(readTestsDuration), TEST_RUNS, sanitizeDuration(readTestAverage),
 		sanitizeDuration(readTestAvgNonZero), readTotalCountNonZero)
@@ -224,15 +238,15 @@ func testEnvelopesStructOps() {
 	}
 
 	writeTestsDuration := nanosToDuration(writeTotalTime)
-	writeTestAverage := nanosAvgToDuration(writeTotalTime, TEST_RUNS)
+	writeTestAverage := nanosAvgToDuration(writeTotalTime, int64(TEST_RUNS))
 	writeTestAvgNonZero := nanosAvgToDuration(writeTotalTime, max(writeTotalCountNonZero, 1))
-	fmt.Printf("*** Average time to make [%d]{w#,h#} %15s / %d = %15s (!0 %15s x %d)\n",
+	fmt.Printf("*** Average time to make [%d]{w#,h#} %15s / %6d = %15s (!0 %15s x %6d)\n",
 		ENV_MAX, sanitizeDuration(writeTestsDuration), TEST_RUNS, sanitizeDuration(writeTestAverage), sanitizeDuration(writeTestAvgNonZero), writeTotalCountNonZero)
 
 	readTestsDuration := nanosToDuration(readTotalTime)
-	readTestAverage := nanosAvgToDuration(readTotalTime, TEST_RUNS)
+	readTestAverage := nanosAvgToDuration(readTotalTime, int64(TEST_RUNS))
 	readTestAvgNonZero := nanosAvgToDuration(readTotalTime, max(readTotalCountNonZero, 1))
-	fmt.Printf("*** Average time to read [%d]{w#,h#} %15s / %d = %15s (!0 %15s x %d)\n",
+	fmt.Printf("*** Average time to read [%d]{w#,h#} %15s / %6d = %15s (!0 %15s x %6d)\n",
 		ENV_MAX, sanitizeDuration(readTestsDuration), TEST_RUNS, sanitizeDuration(readTestAverage), sanitizeDuration(readTestAvgNonZero), readTotalCountNonZero)
 }
 
