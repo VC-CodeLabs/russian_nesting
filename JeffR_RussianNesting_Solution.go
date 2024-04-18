@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math"
+	"strings"
 	"time"
 )
 
@@ -43,7 +44,17 @@ func assert(cond bool, msg string) {
 	}
 }
 
-const TEST_RUNS = 10
+func sanitizeDuration(d time.Duration) string {
+	s := fmt.Sprintf("%s", d)
+	s = strings.Replace(s, "µs", "us", 1)
+	return s
+}
+
+//////////////////////////////////////////////////////////////////
+// tests
+//
+
+const TEST_RUNS = 100
 
 func testEnvelopeOps() {
 
@@ -56,6 +67,7 @@ func testEnvelopeOps() {
 func testEnvelopesArrayOps() {
 
 	var wtt, rtt int64 = 0, 0
+
 	for r := 0; r < TEST_RUNS; r++ {
 		fmt.Println("Writing test [][w#,h#] array...")
 		ts := start()
@@ -65,7 +77,7 @@ func testEnvelopesArrayOps() {
 
 		}
 		td := finish(ts)
-		fmt.Printf("Array with %d envelopes [w#,h#] made in %s\n", len(envs), td)
+		fmt.Printf("Array with %d envelopes [w#,h#] made in %15s\n", len(envs), sanitizeDuration(td))
 		wtt += td.Nanoseconds()
 
 		fmt.Println("Reading test [][w#,h#] array...")
@@ -80,12 +92,12 @@ func testEnvelopesArrayOps() {
 			}
 		}
 		rtd := finish(rts)
-		fmt.Printf("Array with %d envelopes [w#,h#] read in %s\n", len(envs), rtd)
+		fmt.Printf("Array with %d envelopes [w#,h#] read in %15s\n", len(envs), sanitizeDuration(rtd))
 		rtt += rtd.Nanoseconds()
 	}
 	wta := time.Duration(float64(wtt/TEST_RUNS) * float64(time.Nanosecond))
 	rta := time.Duration(float64(rtt/TEST_RUNS) * float64(time.Nanosecond))
-	fmt.Printf("*** Average time to make [][w#,h#] %s read %s in %d runs\n", wta, rta, TEST_RUNS)
+	fmt.Printf("*** Average time to make [][w#,h#] %15s read %15s in %d runs\n", sanitizeDuration(wta), sanitizeDuration(rta), TEST_RUNS)
 }
 
 func testEnvelopesStructOps() {
@@ -100,7 +112,7 @@ func testEnvelopesStructOps() {
 
 		}
 		td := finish(ts)
-		fmt.Printf("Array with %d envelopes {w#,h#} made in %s\n", len(envs), td)
+		fmt.Printf("Array with %d envelopes {w#,h#} made in %15s\n", len(envs), sanitizeDuration(td))
 		wtt += td.Nanoseconds()
 
 		fmt.Println("Reading test []{w#,h#} array...")
@@ -115,13 +127,13 @@ func testEnvelopesStructOps() {
 			}
 		}
 		rtd := finish(rts)
-		fmt.Printf("Array with %d envelopes {w#,h#} read in %s\n", len(envs), rtd)
+		fmt.Printf("Array with %d envelopes {w#,h#} read in %15s\n", len(envs), sanitizeDuration(rtd))
 		rtt += rtd.Nanoseconds()
 
 	}
 	wta := time.Duration(float64(wtt/TEST_RUNS) * float64(time.Nanosecond))
 	rta := time.Duration(float64(rtt/TEST_RUNS) * float64(time.Nanosecond))
-	fmt.Printf("*** Average time to make []{w#,h#} %s read %s in %d runs\n", wta, rta, TEST_RUNS)
+	fmt.Printf("*** Average time to make []{w#,h#} %15s read %15s in %d runs\n", sanitizeDuration(wta), sanitizeDuration(rta), TEST_RUNS)
 
 	var envA = EnvelopesA{{1, 2}, {3, 4}}
 	var envS = EnvelopesS{{1, 2}, {3, 4}}
