@@ -92,6 +92,10 @@ func sanitizeDuration(d time.Duration) string {
 	return s
 }
 
+func nanosToDuration(nanos int64) time.Duration {
+	return time.Duration(float64(nanos) * float64(time.Nanosecond))
+}
+
 //////////////////////////////////////////////////////////////////
 // tests
 //
@@ -110,118 +114,140 @@ func testEnvelopeOps() {
 
 func testEnvelopesArrayOps() {
 
-	var wtt, wtc, rtt, rtc int64 = 0, 0, 0, 0
+	var (
+		writeTotalTime         int64 = 0 // total time spent writing across all test runs
+		writeTotalCountNonZero int64 = 0 // # of write test runs w/ measurable duration > 0
+		readTotalTime          int64 = 0 // total time spend reading across all test runs
+		readTotalCountNonZero  int64 = 0 // # of read test runs w/ measurable duration > 0
+	)
 
-	for r := 0; r < TEST_RUNS; r++ {
+	for testRunIndex := 0; testRunIndex < TEST_RUNS; testRunIndex++ {
 		fmt.Println("Writing test [][w#,h#] array...")
-		ts := start()
+		writeTestStarted := start()
 		envs := make(EnvelopesA, 0)
 		for i := 0; i < ENV_MAX; i++ {
 			envs = append(envs, EnvArray{i + 1, i + 1})
 
 		}
-		td := finish(ts)
-		fmt.Printf("Array with %d envelopes [w#,h#] made in %15s\n", len(envs), sanitizeDuration(td))
-		wns := td.Nanoseconds()
-		wtt += wns
-		if wns > 0 {
-			wtc++
+		writeTestDuration := finish(writeTestStarted)
+		fmt.Printf("Array with %d envelopes [w#,h#] made in %15s\n", len(envs), sanitizeDuration(writeTestDuration))
+		writeTestNanos := writeTestDuration.Nanoseconds()
+		writeTotalTime += writeTestNanos
+		if writeTestNanos > 0 {
+			writeTotalCountNonZero++
 		}
 
 		fmt.Println("Reading test [][w#,h#] array...")
-		rts := start()
+		readTestStarted := start()
 		for i := 0; i < len(envs); i++ {
-			env := envs[i]
-			envW := env[WIDTH]
-			envH := env[HEIGHT]
+			envIth := envs[i] // envelope at index i
+			envIWidth := envIth[WIDTH]
+			envIHeight := envIth[HEIGHT]
 			// be sure the read doesn't get optimized out!!!
-			if envW > DIM_MAX || envH > DIM_MAX {
+			if envIWidth > DIM_MAX || envIHeight > DIM_MAX {
 				fmt.Println("Never!!!")
 			}
 		}
-		rtd := finish(rts)
-		fmt.Printf("Array with %d envelopes [w#,h#] read in %15s\n", len(envs), sanitizeDuration(rtd))
-		rns := rtd.Nanoseconds()
-		rtt += rns
-		if rns > 0 {
-			rtc++
+		readTestDuration := finish(readTestStarted)
+		fmt.Printf("Array with %d envelopes [w#,h#] read in %15s\n", len(envs), sanitizeDuration(readTestDuration))
+		readTestNanos := readTestDuration.Nanoseconds()
+		readTotalTime += readTestNanos
+		if readTestNanos > 0 {
+			readTotalCountNonZero++
 		}
 	}
-	wtd := time.Duration(float64(wtt) * float64(time.Nanosecond))
-	wta := time.Duration(float64(wtt/TEST_RUNS) * float64(time.Nanosecond))
-	wtz := time.Duration(float64(wtt/max(wtc, 1)) * float64(time.Nanosecond))
+	writeTestsDuration := nanosToDuration(writeTotalTime)
+	writeTestAverage := nanosToDuration(writeTotalTime / TEST_RUNS)
+	writeTestAvgNonZero := nanosToDuration(writeTotalTime / max(writeTotalCountNonZero, 1))
 	fmt.Printf("*** Average time to make [%d][w#,h#] %15s / %d = %15s (!0 %15s x %d)\n",
-		ENV_MAX, sanitizeDuration(wtd), TEST_RUNS, sanitizeDuration(wta), sanitizeDuration(wtz), wtc)
+		ENV_MAX,
+		sanitizeDuration(writeTestsDuration), TEST_RUNS, sanitizeDuration(writeTestAverage),
+		sanitizeDuration(writeTestAvgNonZero), writeTotalCountNonZero)
 
-	rtd := time.Duration(float64(rtt) * float64(time.Nanosecond))
-	rta := time.Duration(float64(rtt/TEST_RUNS) * float64(time.Nanosecond))
-	rtz := time.Duration(float64(rtt/max(rtc, 1)) * float64(time.Nanosecond))
+	readTestsDuration := nanosToDuration(readTotalTime)
+	readTestAverage := nanosToDuration(readTotalTime / TEST_RUNS)
+	readTestAvgNonZero := nanosToDuration(readTotalTime / max(readTotalCountNonZero, 1))
 	fmt.Printf("*** Average time to read [%d][w#,h#] %15s / %d = %15s (!0 %15s x %d)\n",
-		ENV_MAX, sanitizeDuration(rtd), TEST_RUNS, sanitizeDuration(rta), sanitizeDuration(rtz), rtc)
+		ENV_MAX,
+		sanitizeDuration(readTestsDuration), TEST_RUNS, sanitizeDuration(readTestAverage),
+		sanitizeDuration(readTestAvgNonZero), readTotalCountNonZero)
 }
 
 func testEnvelopesStructOps() {
 
-	var wtt, wtc, rtt, rtc int64 = 0, 0, 0, 0
-	for r := 0; r < TEST_RUNS; r++ {
+	var (
+		writeTotalTime         int64 = 0 // total time spent writing across all test runs
+		writeTotalCountNonZero int64 = 0 // # of write test runs w/ measurable duration > 0
+		readTotalTime          int64 = 0 // total time spend reading across all test runs
+		readTotalCountNonZero  int64 = 0 // # of read test runs w/ measurable duration > 0
+	)
+
+	for testRunIndex := 0; testRunIndex < TEST_RUNS; testRunIndex++ {
 		fmt.Println("Writing test []{w#,h#} array...")
-		ts := start()
+		writeTestStarted := start()
 		envs := make(EnvelopesS, 0)
 		for i := 0; i < ENV_MAX; i++ {
 			envs = append(envs, EnvStruct{i + 1, i + 1})
 
 		}
-		td := finish(ts)
-		fmt.Printf("Array with %d envelopes {w#,h#} made in %15s\n", len(envs), sanitizeDuration(td))
-		wns := td.Nanoseconds()
-		wtt += wns
-		if wns > 0 {
-			wtc++
+		writeTestDuration := finish(writeTestStarted)
+		fmt.Printf("Array with %d envelopes {w#,h#} made in %15s\n", len(envs), sanitizeDuration(writeTestDuration))
+		writeTestNanos := writeTestDuration.Nanoseconds()
+		writeTotalTime += writeTestNanos
+		if writeTestNanos > 0 {
+			writeTotalCountNonZero++
 		}
 
 		fmt.Println("Reading test []{w#,h#} array...")
-		rts := start()
+		readTestStarted := start()
 		for i := 0; i < len(envs); i++ {
-			env := envs[i]
-			envW := env.width
-			envH := env.height
+			envIth := envs[i] // envelope at index i
+			envIWidth := envIth.width
+			envIHeight := envIth.height
 			// be sure the read doesn't get optimized out!!!
-			if envW > DIM_MAX || envH > DIM_MAX {
+			if envIWidth > DIM_MAX || envIHeight > DIM_MAX {
 				fmt.Println("Never!!!")
 			}
 		}
-		rtd := finish(rts)
-		fmt.Printf("Array with %d envelopes {w#,h#} read in %15s\n", len(envs), sanitizeDuration(rtd))
-		rns := rtd.Nanoseconds()
-		rtt += rns
-		if rns > 0 {
-			rtc++
+		readTestDuration := finish(readTestStarted)
+		fmt.Printf("Array with %d envelopes {w#,h#} read in %15s\n", len(envs), sanitizeDuration(readTestDuration))
+		readTestNanos := readTestDuration.Nanoseconds()
+		readTotalTime += readTestNanos
+		if readTestNanos > 0 {
+			readTotalCountNonZero++
 		}
 
 	}
 
-	wtd := time.Duration(float64(wtt) * float64(time.Nanosecond))
-	wta := time.Duration(float64(wtt/TEST_RUNS) * float64(time.Nanosecond))
-	wtz := time.Duration(float64(wtt/max(wtc, 1)) * float64(time.Nanosecond))
+	writeTestsDuration := nanosToDuration(writeTotalTime)
+	writeTestAverage := nanosToDuration(writeTotalTime / TEST_RUNS)
+	writeTestAvgNonZero := nanosToDuration(writeTotalTime / max(writeTotalCountNonZero, 1))
 	fmt.Printf("*** Average time to make [%d]{w#,h#} %15s / %d = %15s (!0 %15s x %d)\n",
-		ENV_MAX, sanitizeDuration(wtd), TEST_RUNS, sanitizeDuration(wta), sanitizeDuration(wtz), wtc)
+		ENV_MAX, sanitizeDuration(writeTestsDuration), TEST_RUNS, sanitizeDuration(writeTestAverage), sanitizeDuration(writeTestAvgNonZero), writeTotalCountNonZero)
 
-	rtd := time.Duration(float64(rtt) * float64(time.Nanosecond))
-	rta := time.Duration(float64(rtt/TEST_RUNS) * float64(time.Nanosecond))
-	rtz := time.Duration(float64(rtt/max(rtc, 1)) * float64(time.Nanosecond))
+	readTestsDuration := nanosToDuration(readTotalTime)
+	readTestAverage := nanosToDuration(readTotalTime / TEST_RUNS)
+	readTestAvgNonZero := nanosToDuration(readTotalTime / max(readTotalCountNonZero, 1))
 	fmt.Printf("*** Average time to read [%d]{w#,h#} %15s / %d = %15s (!0 %15s x %d)\n",
-		ENV_MAX, sanitizeDuration(rtd), TEST_RUNS, sanitizeDuration(rta), sanitizeDuration(rtz), rtc)
+		ENV_MAX, sanitizeDuration(readTestsDuration), TEST_RUNS, sanitizeDuration(readTestAverage), sanitizeDuration(readTestAvgNonZero), readTotalCountNonZero)
 }
 
 func testEnvelopeStructArrayInterOps() {
 
 	// verifies we can init either struct or array with the same expression
-	var envA = EnvelopesA{{1, 2}, {3, 4}}
-	var envS = EnvelopesS{{1, 2}, {3, 4}}
 
+	var envA = EnvelopesA{{1, 2}, {3, 4}} // where each envelope is an array
+	var envS = EnvelopesS{{1, 2}, {3, 4}} // where each envelope is a struct
+
+	// verify the results are equivalent :)
+
+	// array and struct are same length
 	assert(len(envA) == len(envS), "mismatched array vs struct lengths")
+
 	for i := 0; i < len(envA); i++ {
+		// equivalent width values
 		assert(envA[i][WIDTH] == envS[i].width, fmt.Sprintf("mismatched env[%d] width", i))
+		// equivalent height values
 		assert(envA[i][HEIGHT] == envS[i].height, fmt.Sprintf("mismatched env[%d] height", i))
 	}
 }
