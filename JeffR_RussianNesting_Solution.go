@@ -92,8 +92,12 @@ func sanitizeDuration(d time.Duration) string {
 	return s
 }
 
-func nanosToDuration(nanos int64) time.Duration {
+func nanosToDuration[N int64 | float64](nanos N) time.Duration {
 	return time.Duration(float64(nanos) * float64(time.Nanosecond))
+}
+
+func nanosAvgToDuration[N int64 | float64](totalNanos N, counter N) time.Duration {
+	return nanosToDuration(float64(totalNanos) / float64(counter))
 }
 
 //////////////////////////////////////////////////////////////////
@@ -157,16 +161,16 @@ func testEnvelopesArrayOps() {
 		}
 	}
 	writeTestsDuration := nanosToDuration(writeTotalTime)
-	writeTestAverage := nanosToDuration(writeTotalTime / TEST_RUNS)
-	writeTestAvgNonZero := nanosToDuration(writeTotalTime / max(writeTotalCountNonZero, 1))
+	writeTestAverage := nanosAvgToDuration(writeTotalTime, TEST_RUNS)
+	writeTestAvgNonZero := nanosAvgToDuration(writeTotalTime, max(writeTotalCountNonZero, 1))
 	fmt.Printf("*** Average time to make [%d][w#,h#] %15s / %d = %15s (!0 %15s x %d)\n",
 		ENV_MAX,
 		sanitizeDuration(writeTestsDuration), TEST_RUNS, sanitizeDuration(writeTestAverage),
 		sanitizeDuration(writeTestAvgNonZero), writeTotalCountNonZero)
 
 	readTestsDuration := nanosToDuration(readTotalTime)
-	readTestAverage := nanosToDuration(readTotalTime / TEST_RUNS)
-	readTestAvgNonZero := nanosToDuration(readTotalTime / max(readTotalCountNonZero, 1))
+	readTestAverage := nanosAvgToDuration(readTotalTime, TEST_RUNS)
+	readTestAvgNonZero := nanosAvgToDuration(readTotalTime, max(readTotalCountNonZero, 1))
 	fmt.Printf("*** Average time to read [%d][w#,h#] %15s / %d = %15s (!0 %15s x %d)\n",
 		ENV_MAX,
 		sanitizeDuration(readTestsDuration), TEST_RUNS, sanitizeDuration(readTestAverage),
@@ -220,14 +224,14 @@ func testEnvelopesStructOps() {
 	}
 
 	writeTestsDuration := nanosToDuration(writeTotalTime)
-	writeTestAverage := nanosToDuration(writeTotalTime / TEST_RUNS)
-	writeTestAvgNonZero := nanosToDuration(writeTotalTime / max(writeTotalCountNonZero, 1))
+	writeTestAverage := nanosAvgToDuration(writeTotalTime, TEST_RUNS)
+	writeTestAvgNonZero := nanosAvgToDuration(writeTotalTime, max(writeTotalCountNonZero, 1))
 	fmt.Printf("*** Average time to make [%d]{w#,h#} %15s / %d = %15s (!0 %15s x %d)\n",
 		ENV_MAX, sanitizeDuration(writeTestsDuration), TEST_RUNS, sanitizeDuration(writeTestAverage), sanitizeDuration(writeTestAvgNonZero), writeTotalCountNonZero)
 
 	readTestsDuration := nanosToDuration(readTotalTime)
-	readTestAverage := nanosToDuration(readTotalTime / TEST_RUNS)
-	readTestAvgNonZero := nanosToDuration(readTotalTime / max(readTotalCountNonZero, 1))
+	readTestAverage := nanosAvgToDuration(readTotalTime, TEST_RUNS)
+	readTestAvgNonZero := nanosAvgToDuration(readTotalTime, max(readTotalCountNonZero, 1))
 	fmt.Printf("*** Average time to read [%d]{w#,h#} %15s / %d = %15s (!0 %15s x %d)\n",
 		ENV_MAX, sanitizeDuration(readTestsDuration), TEST_RUNS, sanitizeDuration(readTestAverage), sanitizeDuration(readTestAvgNonZero), readTotalCountNonZero)
 }
