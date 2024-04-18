@@ -38,12 +38,17 @@ func finish(started time.Time) time.Duration {
 	return time.Since(started)
 }
 
+// the rough equivalent of java assert,
+// minus the nifty auto-stringification of check expression (1st arg)
 func assert(cond bool, msg string) {
 	if !cond {
 		panic(msg)
 	}
 }
 
+// sanitizes stringified duration so the microsecond indicator
+// can pass thru console pipes like find cmd;
+// otherwise, it prints as "#┬╡s" instead of "#µs"
 func sanitizeDuration(d time.Duration) string {
 	s := fmt.Sprintf("%s", d)
 	s = strings.Replace(s, "µs", "us", 1)
@@ -66,7 +71,7 @@ func testEnvelopeOps() {
 
 func testEnvelopesArrayOps() {
 
-	var wtt, rtt int64 = 0, 0
+	var wtt, wtc, rtt, rtc int64 = 0, 0, 0, 0
 
 	for r := 0; r < TEST_RUNS; r++ {
 		fmt.Println("Writing test [][w#,h#] array...")
@@ -78,7 +83,11 @@ func testEnvelopesArrayOps() {
 		}
 		td := finish(ts)
 		fmt.Printf("Array with %d envelopes [w#,h#] made in %15s\n", len(envs), sanitizeDuration(td))
-		wtt += td.Nanoseconds()
+		wns := td.Nanoseconds()
+		wtt += wns
+		if wns > 0 {
+			wtc++
+		}
 
 		fmt.Println("Reading test [][w#,h#] array...")
 		rts := start()
@@ -93,16 +102,28 @@ func testEnvelopesArrayOps() {
 		}
 		rtd := finish(rts)
 		fmt.Printf("Array with %d envelopes [w#,h#] read in %15s\n", len(envs), sanitizeDuration(rtd))
-		rtt += rtd.Nanoseconds()
+		rns := rtd.Nanoseconds()
+		rtt += rns
+		if rns > 0 {
+			rtc++
+		}
 	}
+	wtd := time.Duration(float64(wtt) * float64(time.Nanosecond))
 	wta := time.Duration(float64(wtt/TEST_RUNS) * float64(time.Nanosecond))
+	wtz := time.Duration(float64(wtt/max(wtc, 1)) * float64(time.Nanosecond))
+	fmt.Printf("*** Average time to make [%d][w#,h#] %15s / %d = %15s (!0 %15s x %d)\n",
+		ENV_MAX, sanitizeDuration(wtd), TEST_RUNS, sanitizeDuration(wta), sanitizeDuration(wtz), wtc)
+
+	rtd := time.Duration(float64(rtt) * float64(time.Nanosecond))
 	rta := time.Duration(float64(rtt/TEST_RUNS) * float64(time.Nanosecond))
-	fmt.Printf("*** Average time to make [][w#,h#] %15s read %15s in %d runs\n", sanitizeDuration(wta), sanitizeDuration(rta), TEST_RUNS)
+	rtz := time.Duration(float64(rtt/max(rtc, 1)) * float64(time.Nanosecond))
+	fmt.Printf("*** Average time to read [%d][w#,h#] %15s / %d = %15s (!0 %15s x %d)\n",
+		ENV_MAX, sanitizeDuration(rtd), TEST_RUNS, sanitizeDuration(rta), sanitizeDuration(rtz), rtc)
 }
 
 func testEnvelopesStructOps() {
 
-	var wtt, rtt int64 = 0, 0
+	var wtt, wtc, rtt, rtc int64 = 0, 0, 0, 0
 	for r := 0; r < TEST_RUNS; r++ {
 		fmt.Println("Writing test []{w#,h#} array...")
 		ts := start()
@@ -113,7 +134,11 @@ func testEnvelopesStructOps() {
 		}
 		td := finish(ts)
 		fmt.Printf("Array with %d envelopes {w#,h#} made in %15s\n", len(envs), sanitizeDuration(td))
-		wtt += td.Nanoseconds()
+		wns := td.Nanoseconds()
+		wtt += wns
+		if wns > 0 {
+			wtc++
+		}
 
 		fmt.Println("Reading test []{w#,h#} array...")
 		rts := start()
@@ -128,12 +153,25 @@ func testEnvelopesStructOps() {
 		}
 		rtd := finish(rts)
 		fmt.Printf("Array with %d envelopes {w#,h#} read in %15s\n", len(envs), sanitizeDuration(rtd))
-		rtt += rtd.Nanoseconds()
+		rns := rtd.Nanoseconds()
+		rtt += rns
+		if rns > 0 {
+			rtc++
+		}
 
 	}
+
+	wtd := time.Duration(float64(wtt) * float64(time.Nanosecond))
 	wta := time.Duration(float64(wtt/TEST_RUNS) * float64(time.Nanosecond))
+	wtz := time.Duration(float64(wtt/max(wtc, 1)) * float64(time.Nanosecond))
+	fmt.Printf("*** Average time to make [%d]{w#,h#} %15s / %d = %15s (!0 %15s x %d)\n",
+		ENV_MAX, sanitizeDuration(wtd), TEST_RUNS, sanitizeDuration(wta), sanitizeDuration(wtz), wtc)
+
+	rtd := time.Duration(float64(rtt) * float64(time.Nanosecond))
 	rta := time.Duration(float64(rtt/TEST_RUNS) * float64(time.Nanosecond))
-	fmt.Printf("*** Average time to make []{w#,h#} %15s read %15s in %d runs\n", sanitizeDuration(wta), sanitizeDuration(rta), TEST_RUNS)
+	rtz := time.Duration(float64(rtt/max(rtc, 1)) * float64(time.Nanosecond))
+	fmt.Printf("*** Average time to read [%d]{w#,h#} %15s / %d = %15s (!0 %15s x %d)\n",
+		ENV_MAX, sanitizeDuration(rtd), TEST_RUNS, sanitizeDuration(rta), sanitizeDuration(rtz), rtc)
 
 	var envA = EnvelopesA{{1, 2}, {3, 4}}
 	var envS = EnvelopesS{{1, 2}, {3, 4}}
