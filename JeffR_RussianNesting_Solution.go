@@ -46,16 +46,48 @@ const (
 
 type EnvelopesA [][2]int
 
+// returns time.Now()
+//
+// use along with finish() to time some code:
+//
+//		started := start()
+//	 	// ...some code...
+//	 	elapsed := finish(started)
 func start() time.Time {
 	return time.Now()
 }
 
+// returns duration since prior start() or time.Time;
+// use along with start() to time some code
 func finish(started time.Time) time.Duration {
 	return time.Since(started)
 }
 
 // provides an approximation of good ol' Java ternary operator:
-// <condBool> ? <valueIfTrue> : <valueIfFalse>
+//
+//	<condBool> ? <valueIfTrue> : <valueIfFalse>
+//
+// the equivalent of
+//
+//	if <condBool> {
+//		return <valueIfTrue>
+//	} else {
+//		return <valueIfFalse>
+//	}
+//
+// (in fact, this is the impl in golang)
+// *BUT* is nestable inside another expression e.g.
+//
+//	fmt.Printf("%s", ternary(flag,"foo","bar"))
+//
+// vs
+//
+//	     if flag {
+//				fmt.Print("foo")
+//			} else {
+//				fmt.Print("bar")
+//			}
+//
 // with one *MAJOR* difference: the <valueIfTrue> and <valueIfFalse>
 // are both eval'd regardless of the <condBool> outcome
 // SOOO don't use anything that has side-effects for 2nd or 3rd args!!!
@@ -100,10 +132,12 @@ func sanitizeDuration(d time.Duration) string {
 	return s
 }
 
+// converts nanos# to equivalent duration
 func nanosToDuration[N int | int64 | float64](nanos N) time.Duration {
 	return time.Duration(float64(nanos) * float64(time.Nanosecond))
 }
 
+// computes the average time from total / counter, converts to duration
 func nanosAvgToDuration[N int | int64 | float64](totalNanos N, counter N) time.Duration {
 	return nanosToDuration(float64(totalNanos) / float64(counter))
 }
@@ -116,20 +150,27 @@ func nanosAvgToDuration[N int | int64 | float64](totalNanos N, counter N) time.D
 
 func testEnvelopeOps() {
 
-	allTestsStarted := start()
+	allTestsStarted := start() // get the time we started testing
 
 	testEnvelopeStructArrayInterOps()
+
+	// NOTE order doesn't seem to matter here-
+	// testing envelope-as-structs before or after envelope-as-arrays,
+	// the struct version seems to be consistently faster
+	// on my machine, at least :/
 
 	testEnvelopesArrayOps()
 
 	testEnvelopesStructOps()
 
-	allTestsDuration := finish(allTestsStarted)
+	allTestsDuration := finish(allTestsStarted) // get total time to run all tests
 
 	fmt.Printf("*** All tests completed in %s\n", allTestsDuration)
 
 }
 
+// generates a max-sized set of envelopes-as-array, then reads it all back to gauge performance
+// compare to testEnvelopesStructOps()- a mirror, except for the envelope type
 func testEnvelopesArrayOps() {
 
 	var (
@@ -139,41 +180,56 @@ func testEnvelopesArrayOps() {
 		readTotalCountNonZero  int64 = 0 // # of read test runs w/ measurable duration > 0
 	)
 
+	// repeat the test N times (-t=# on the command-line, defaults to 10)
 	for testRunIndex := 0; testRunIndex < TEST_RUNS; testRunIndex++ {
-		fmt.Println("Writing test [][w#,h#] array...")
-		writeTestStarted := start()
-		envs := make(EnvelopesA, 0)
-		for i := 0; i < ENV_MAX; i++ {
-			envs = append(envs, EnvArray{i + 1, i + 1})
 
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		// write tests: creating a collection of envelopes
+		// since we have to read from stdin, this may be important
+		fmt.Println("Writing test [][w#,h#] array...")
+		writeTestStarted := start()      // start our timer for this write test run
+		envelopes := make(EnvelopesA, 0) // init the envelopes collections
+		for i := 0; i < ENV_MAX; i++ {   // creating N max envelopes
+			envelopes = append(envelopes, EnvArray{i + 1, i + 1}) // append a new envelope
 		}
-		writeTestDuration := finish(writeTestStarted)
-		fmt.Printf("Array with %d envelopes [w#,h#] made in %15s\n", len(envs), sanitizeDuration(writeTestDuration))
+		writeTestDuration := finish(writeTestStarted) // get the time taken for this write test run
+
+		// report the results for this write test
+		fmt.Printf("Array with %d envelopes [w#,h#] made in %15s\n", len(envelopes), sanitizeDuration(writeTestDuration))
+
+		// track the total time & non-zero duration counter for all write tests
 		writeTestNanos := writeTestDuration.Nanoseconds()
 		writeTotalTime += writeTestNanos
 		if writeTestNanos > 0 {
 			writeTotalCountNonZero++
 		}
 
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		// read tests: reading a collection of envelopes
 		fmt.Println("Reading test [][w#,h#] array...")
-		readTestStarted := start()
-		for i := 0; i < len(envs); i++ {
-			envIth := envs[i] // envelope at index i
-			envIWidth := envIth[WIDTH]
-			envIHeight := envIth[HEIGHT]
+		readTestStarted := start()            // start our timer for this read test run
+		for i := 0; i < len(envelopes); i++ { // walk thru the collection
+			envIth := envelopes[i]       // envelope instance at index i
+			envIWidth := envIth[WIDTH]   // width for this envelope instance
+			envIHeight := envIth[HEIGHT] // height for this envelope instance
 			// be sure the read doesn't get optimized out!!!
 			if envIWidth > DIM_MAX || envIHeight > DIM_MAX {
 				fmt.Println("Never!!!")
 			}
 		}
-		readTestDuration := finish(readTestStarted)
-		fmt.Printf("Array with %d envelopes [w#,h#] read in %15s\n", len(envs), sanitizeDuration(readTestDuration))
+		readTestDuration := finish(readTestStarted) // get the time taken for this read test run
+
+		// report the results for this read test
+		fmt.Printf("Array with %d envelopes [w#,h#] read in %15s\n", len(envelopes), sanitizeDuration(readTestDuration))
+
+		// track the total time & non-zero duration counter for all read tests
 		readTestNanos := readTestDuration.Nanoseconds()
 		readTotalTime += readTestNanos
 		if readTestNanos > 0 {
 			readTotalCountNonZero++
 		}
 	}
+	// report the results for all write tests
 	writeTestsDuration := nanosToDuration(writeTotalTime)
 	writeTestAverage := nanosAvgToDuration(writeTotalTime, int64(TEST_RUNS))
 	writeTestAvgNonZero := nanosAvgToDuration(writeTotalTime, max(writeTotalCountNonZero, 1))
@@ -182,6 +238,7 @@ func testEnvelopesArrayOps() {
 		sanitizeDuration(writeTestsDuration), TEST_RUNS, sanitizeDuration(writeTestAverage),
 		sanitizeDuration(writeTestAvgNonZero), writeTotalCountNonZero)
 
+	// report the results for all read tests
 	readTestsDuration := nanosToDuration(readTotalTime)
 	readTestAverage := nanosAvgToDuration(readTotalTime, int64(TEST_RUNS))
 	readTestAvgNonZero := nanosAvgToDuration(readTotalTime, max(readTotalCountNonZero, 1))
@@ -191,6 +248,8 @@ func testEnvelopesArrayOps() {
 		sanitizeDuration(readTestAvgNonZero), readTotalCountNonZero)
 }
 
+// generates a max-sized set of envelopes-as-struct, then reads it all back to gauge performance
+// compare to testEnvelopesArrayOps()- a mirror, except for the envelope type
 func testEnvelopesStructOps() {
 
 	var (
@@ -200,35 +259,50 @@ func testEnvelopesStructOps() {
 		readTotalCountNonZero  int64 = 0 // # of read test runs w/ measurable duration > 0
 	)
 
+	// repeat the test N times (-t=# on the command-line, defaults to 10)
 	for testRunIndex := 0; testRunIndex < TEST_RUNS; testRunIndex++ {
-		fmt.Println("Writing test []{w#,h#} array...")
-		writeTestStarted := start()
-		envs := make(EnvelopesS, 0)
-		for i := 0; i < ENV_MAX; i++ {
-			envs = append(envs, EnvStruct{i + 1, i + 1})
 
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		// write tests: creating a collection of envelopes
+		// since we have to read from stdin, this may be important
+		fmt.Println("Writing test []{w#,h#} array...")
+		writeTestStarted := start()      // start our timer for this write test run
+		envelopes := make(EnvelopesS, 0) // init the envelopes collections
+		for i := 0; i < ENV_MAX; i++ {   // creating N max envelopes
+			envelopes = append(envelopes, EnvStruct{i + 1, i + 1}) // append a new envelope
 		}
-		writeTestDuration := finish(writeTestStarted)
-		fmt.Printf("Array with %d envelopes {w#,h#} made in %15s\n", len(envs), sanitizeDuration(writeTestDuration))
+		writeTestDuration := finish(writeTestStarted) // get the time taken for this write test run
+
+		// report the results for this write test
+		fmt.Printf("Array with %d envelopes {w#,h#} made in %15s\n", len(envelopes), sanitizeDuration(writeTestDuration))
+
+		// track the total time & non-zero duration counter for all write tests
 		writeTestNanos := writeTestDuration.Nanoseconds()
 		writeTotalTime += writeTestNanos
 		if writeTestNanos > 0 {
 			writeTotalCountNonZero++
 		}
 
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		// read tests: reading a collection of envelopes
 		fmt.Println("Reading test []{w#,h#} array...")
-		readTestStarted := start()
-		for i := 0; i < len(envs); i++ {
-			envIth := envs[i] // envelope at index i
-			envIWidth := envIth.width
-			envIHeight := envIth.height
+		readTestStarted := start()            // start our timer for this read test run
+		for i := 0; i < len(envelopes); i++ { // walk thru the collection
+			envIth := envelopes[i]      // envelope instance at index i
+			envIWidth := envIth.width   // width for this envelope instance
+			envIHeight := envIth.height // height for this envelope instance
 			// be sure the read doesn't get optimized out!!!
 			if envIWidth > DIM_MAX || envIHeight > DIM_MAX {
 				fmt.Println("Never!!!")
 			}
 		}
-		readTestDuration := finish(readTestStarted)
-		fmt.Printf("Array with %d envelopes {w#,h#} read in %15s\n", len(envs), sanitizeDuration(readTestDuration))
+
+		readTestDuration := finish(readTestStarted) // get the time taken for this read test run
+
+		// report the results for this read test
+		fmt.Printf("Array with %d envelopes {w#,h#} read in %15s\n", len(envelopes), sanitizeDuration(readTestDuration))
+
+		// track the total time & non-zero duration counter for all read tests
 		readTestNanos := readTestDuration.Nanoseconds()
 		readTotalTime += readTestNanos
 		if readTestNanos > 0 {
@@ -237,12 +311,14 @@ func testEnvelopesStructOps() {
 
 	}
 
+	// report the results for all write tests
 	writeTestsDuration := nanosToDuration(writeTotalTime)
 	writeTestAverage := nanosAvgToDuration(writeTotalTime, int64(TEST_RUNS))
 	writeTestAvgNonZero := nanosAvgToDuration(writeTotalTime, max(writeTotalCountNonZero, 1))
 	fmt.Printf("*** Average time to make [%d]{w#,h#} %15s / %6d = %15s (!0 %15s x %6d)\n",
 		ENV_MAX, sanitizeDuration(writeTestsDuration), TEST_RUNS, sanitizeDuration(writeTestAverage), sanitizeDuration(writeTestAvgNonZero), writeTotalCountNonZero)
 
+	// report the results for all read tests
 	readTestsDuration := nanosToDuration(readTotalTime)
 	readTestAverage := nanosAvgToDuration(readTotalTime, int64(TEST_RUNS))
 	readTestAvgNonZero := nanosAvgToDuration(readTotalTime, max(readTotalCountNonZero, 1))
@@ -250,6 +326,8 @@ func testEnvelopesStructOps() {
 		ENV_MAX, sanitizeDuration(readTestsDuration), TEST_RUNS, sanitizeDuration(readTestAverage), sanitizeDuration(readTestAvgNonZero), readTotalCountNonZero)
 }
 
+// basic validation to "prove" we can use the same inline constant defs for envelope-as-array vs envelope-as-struct,
+// and the results are equivalent w/r/t the state of the envelope(s)
 func testEnvelopeStructArrayInterOps() {
 
 	// verifies we can init either struct or array with the same expression
