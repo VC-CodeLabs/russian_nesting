@@ -1,6 +1,6 @@
 requires GOTMPDIR setting  
-bash: `export GOTMPDIR=../tmp`  
-cmd: `set GOTMPDIR=..\tmp`  
+bash: `export GOTMPDIR=~/Projects/tmp`  
+cmd: `set GOTMPDIR=%USERPROFILE%\Projects\tmp`  
 
 # Envelope: Struct vs Array
 
