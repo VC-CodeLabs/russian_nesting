@@ -133,11 +133,11 @@ func envCmp(a Envelope, b Envelope) int {
 	return diff
 }
 
-/*****
+/*
 func envSortInPlace(envelopes *Envelopes) {
 	slices.SortFunc(*envelopes, envCmp)
 }
-*****/
+*/
 
 func EnvSort(envelopes Envelopes) Envelopes {
 	slices.SortFunc(envelopes, envCmp)
