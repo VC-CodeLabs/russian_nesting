@@ -23,54 +23,13 @@ func main() {
 		testEnvelopeOps()
 	}
 
-	// testEnvMapping()
+	if false {
+		testEnvMapping()
+	}
 	testArray()
 	testSimpleMap()
 	testInterface()
 }
-
-/*****
-const DIM_MIN = 1
-
-// var DIM_MAX = int(math.Pow(10, 5))
-// var DIM_MAX = int(math.Pow10(5))
-const DIM_MAX = int(1e5)
-
-const ENV_MIN = 1
-
-// var ENV_MAX = DIM_MAX
-const ENV_MAX = DIM_MAX
-*****/
-
-/*****
-type EnvStruct struct {
-	width  int
-	height int
-}
-
-type EnvelopesS []EnvStruct
-
-type EnvArray [2]int
-
-// indexes into EnvArray for width & height
-const (
-	WIDTH  = 0
-	HEIGHT = 1
-)
-
-type EnvelopesA [][2]int
-
-type Envelope EnvStruct
-type Envelopes []Envelope
-
-func envWidth(env Envelope) int {
-	return env.width
-}
-
-func envHeight(env Envelope) int {
-	return env.height
-}
-*****/
 
 // local proxies to minimize diffs during isolation work
 
@@ -226,66 +185,6 @@ func testInterface() {
 	}
 
 }
-
-/*****
-type RussianNesting interface {
-	initData()
-	putDataItem(int, int)
-	closeData()
-	getNestedEnvelopes() Envelopes
-	getNestedCount() int
-}
-
-type EnvArrayWithAppend struct {
-	envelopes Envelopes
-}
-
-func (x EnvArrayWithAppend) initData() {
-}
-
-func (x *EnvArrayWithAppend) putDataItem(w int, h int) {
-	(*x).envelopes = append(x.envelopes, Envelope{w, h})
-}
-
-func (x EnvArrayWithAppend) closeData() {
-
-}
-
-func (x EnvArrayWithAppend) getNestedEnvelopes() Envelopes {
-	return envFilter(envSort(x.envelopes))
-}
-
-func (x EnvArrayWithAppend) getNestedCount() int {
-	return len(x.getNestedEnvelopes())
-}
-
-type EnvArrayPreAlloc struct {
-	base      EnvArrayWithAppend
-	itemCount int
-}
-
-func (x *EnvArrayPreAlloc) initData() {
-	(*x).base.envelopes = make(Envelopes, ENV_MAX)
-	// (*x).itemCount = 0
-}
-
-func (x *EnvArrayPreAlloc) putDataItem(w int, h int) {
-	(*x).base.envelopes[x.itemCount] = Envelope{w, h}
-	(*x).itemCount++
-}
-
-func (x *EnvArrayPreAlloc) closeData() {
-	(*x).base.envelopes = x.base.envelopes[:x.itemCount]
-}
-
-func (x EnvArrayPreAlloc) getNestedEnvelopes() Envelopes {
-	return x.base.getNestedEnvelopes()
-}
-
-func (x EnvArrayPreAlloc) getNestedCount() int {
-	return x.base.getNestedCount()
-}
-*****/
 
 func testArray() {
 	ts := start()
