@@ -1,14 +1,12 @@
-package main
+package libsln
 
 import (
 	"JeffR/lib"
 	"cmp"
-	"flag"
-	"fmt"
 	"slices"
-	"time"
 )
 
+/*****
 var TEST_RUNS int = 0
 
 func main() {
@@ -27,6 +25,7 @@ func main() {
 	testSimpleMap()
 	testInterface()
 }
+*****/
 
 const DIM_MIN = 1
 
@@ -40,8 +39,8 @@ const ENV_MIN = 1
 const ENV_MAX = DIM_MAX
 
 type EnvStruct struct {
-	width  int
-	height int
+	Width  int
+	Height int
 }
 
 type EnvelopesS []EnvStruct
@@ -59,18 +58,28 @@ type EnvelopesA [][2]int
 type Envelope EnvStruct
 type Envelopes []Envelope
 
+func EnvWidth(env Envelope) int {
+	return env.Width
+}
+
+func EnvHeight(env Envelope) int {
+	return env.Height
+}
+
+// local proxies to minimize diffs during isolation work
+
 func envWidth(env Envelope) int {
-	return env.width
+	return EnvWidth(env)
 }
 
 func envHeight(env Envelope) int {
-	return env.height
+	return EnvHeight(env)
 }
 
 //////////////////////////////////////////////////////////////////
 // local proxies for fx moved to lib
 //
-
+/*****
 func start() time.Time {
 	return lib.Start()
 }
@@ -82,11 +91,13 @@ func finish(started time.Time) time.Duration {
 func ternary[B bool, V int | int64 | float32 | float64 | string](cond bool, ifTrue V, ifFalse V) V {
 	return lib.Ternary(cond, ifTrue, ifFalse)
 }
+*****/
 
 func assert(cond bool, msg string) {
 	lib.Assert(cond, msg)
 }
 
+/*****
 func sanitizeDuration(d time.Duration) string {
 	return lib.SanitizeDuration(d)
 }
@@ -98,11 +109,13 @@ func nanosToDuration[N int | int64 | float64](nanos N) time.Duration {
 func nanosAvgToDuration[N int | int64 | float64](totalNanos N, counter N) time.Duration {
 	return lib.NanosAvgToDuration(totalNanos, counter)
 }
+*****/
 
 //////////////////////////////////////////////////////////////////
 // tests
 //
 
+/*****
 func testInterface() {
 
 	{
@@ -211,36 +224,37 @@ func testInterface() {
 	}
 
 }
+*****/
 
 type RussianNesting interface {
-	initData()
-	putDataItem(int, int)
-	closeData()
-	getNestedEnvelopes() Envelopes
-	getNestedCount() int
+	InitData()
+	PutDataItem(int, int)
+	CloseData()
+	GetNestedEnvelopes() Envelopes
+	GetNestedCount() int
 }
 
 type EnvArrayWithAppend struct {
 	envelopes Envelopes
 }
 
-func (x EnvArrayWithAppend) initData() {
+func (x EnvArrayWithAppend) InitData() {
 }
 
-func (x *EnvArrayWithAppend) putDataItem(w int, h int) {
+func (x *EnvArrayWithAppend) PutDataItem(w int, h int) {
 	(*x).envelopes = append(x.envelopes, Envelope{w, h})
 }
 
-func (x EnvArrayWithAppend) closeData() {
+func (x EnvArrayWithAppend) CloseData() {
 
 }
 
-func (x EnvArrayWithAppend) getNestedEnvelopes() Envelopes {
+func (x EnvArrayWithAppend) GetNestedEnvelopes() Envelopes {
 	return envFilter(envSort(x.envelopes))
 }
 
-func (x EnvArrayWithAppend) getNestedCount() int {
-	return len(x.getNestedEnvelopes())
+func (x EnvArrayWithAppend) GetNestedCount() int {
+	return len(x.GetNestedEnvelopes())
 }
 
 type EnvArrayPreAlloc struct {
@@ -248,28 +262,29 @@ type EnvArrayPreAlloc struct {
 	itemCount int
 }
 
-func (x *EnvArrayPreAlloc) initData() {
+func (x *EnvArrayPreAlloc) InitData() {
 	(*x).base.envelopes = make(Envelopes, ENV_MAX)
 	// (*x).itemCount = 0
 }
 
-func (x *EnvArrayPreAlloc) putDataItem(w int, h int) {
+func (x *EnvArrayPreAlloc) PutDataItem(w int, h int) {
 	(*x).base.envelopes[x.itemCount] = Envelope{w, h}
 	(*x).itemCount++
 }
 
-func (x *EnvArrayPreAlloc) closeData() {
+func (x *EnvArrayPreAlloc) CloseData() {
 	(*x).base.envelopes = x.base.envelopes[:x.itemCount]
 }
 
-func (x EnvArrayPreAlloc) getNestedEnvelopes() Envelopes {
-	return x.base.getNestedEnvelopes()
+func (x EnvArrayPreAlloc) GetNestedEnvelopes() Envelopes {
+	return x.base.GetNestedEnvelopes()
 }
 
-func (x EnvArrayPreAlloc) getNestedCount() int {
-	return x.base.getNestedCount()
+func (x EnvArrayPreAlloc) GetNestedCount() int {
+	return x.base.GetNestedCount()
 }
 
+/*****
 func testArray() {
 	ts := start()
 
@@ -346,6 +361,7 @@ func envKeys(envMapByStruct EnvMapByStruct) Envelopes {
 	}
 	return envelopes
 }
+*****/
 
 func envCmp(a Envelope, b Envelope) int {
 	diff := cmp.Compare(envWidth(a), envWidth(b))
@@ -391,6 +407,7 @@ func envFilter(envelopes Envelopes) Envelopes {
 }
 
 // ////////////////////////////////////////////////////////////////
+/*****
 type EnvMap map[int]map[int]bool
 
 // tracks original indexes for each envelope
@@ -947,17 +964,6 @@ func testEnvAFilter(envelopes []Envelope) []Envelope {
 			if envWidth(env) > envWidth(lastEnv) && envHeight(env) > envHeight(lastEnv) {
 				// last envelope would fit inside the current one
 				filteredEnvelopes = append(filteredEnvelopes, lastEnv)
-				/*
-					if envWidth(env) < envWidth(nextEnv) && envHeight(env) < envHeight(nextEnv) {
-						// wait for the tightest fit
-
-					}
-				*/
-				/*
-					if i == len(envelopes)-1 {
-						filteredEnvelopes = append(filteredEnvelopes, env)
-					}
-				*/
 				lastEnv = env
 			}
 		} else {
@@ -1177,3 +1183,4 @@ func testEnvelopeStructArrayInterOps() {
 		assert(envA[i][HEIGHT] == envS[i].height, fmt.Sprintf("mismatched env[%d] height", i))
 	}
 }
+*****/

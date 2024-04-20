@@ -2,6 +2,7 @@ package main
 
 import (
 	"JeffR/lib"
+	. "JeffR/libsln"
 	"cmp"
 	"flag"
 	"fmt"
@@ -28,6 +29,7 @@ func main() {
 	testInterface()
 }
 
+/*****
 const DIM_MIN = 1
 
 // var DIM_MAX = int(math.Pow(10, 5))
@@ -38,7 +40,9 @@ const ENV_MIN = 1
 
 // var ENV_MAX = DIM_MAX
 const ENV_MAX = DIM_MAX
+*****/
 
+/*****
 type EnvStruct struct {
 	width  int
 	height int
@@ -65,6 +69,17 @@ func envWidth(env Envelope) int {
 
 func envHeight(env Envelope) int {
 	return env.height
+}
+*****/
+
+// local proxies to minimize diffs during isolation work
+
+func envWidth(env Envelope) int {
+	return EnvWidth(env)
+}
+
+func envHeight(env Envelope) int {
+	return EnvHeight(env)
 }
 
 //////////////////////////////////////////////////////////////////
@@ -110,16 +125,16 @@ func testInterface() {
 		envs := EnvArrayWithAppend{}
 
 		// assert(envs.foo == false, "foo!")
-		envs.initData()
+		envs.InitData()
 		// assert(envs.foo == true, "foo!!!")
 
 		for i := 0; i < ENV_MAX; i++ {
-			envs.putDataItem(ENV_MAX-i, ENV_MAX-i)
+			envs.PutDataItem(ENV_MAX-i, ENV_MAX-i)
 		}
 
-		envs.closeData()
+		envs.CloseData()
 
-		nestedEnvelopes := envs.getNestedEnvelopes()
+		nestedEnvelopes := envs.GetNestedEnvelopes()
 
 		td := finish(ts)
 
@@ -131,16 +146,16 @@ func testInterface() {
 		envs := EnvArrayPreAlloc{}
 
 		// assert(envs.foo == false, "foo!")
-		envs.initData()
+		envs.InitData()
 		// assert(envs.foo == true, "foo!!!")
 
 		for i := 0; i < ENV_MAX; i++ {
-			envs.putDataItem(ENV_MAX-i, ENV_MAX-i)
+			envs.PutDataItem(ENV_MAX-i, ENV_MAX-i)
 		}
 
-		envs.closeData()
+		envs.CloseData()
 
-		nestedEnvelopes := envs.getNestedEnvelopes()
+		nestedEnvelopes := envs.GetNestedEnvelopes()
 
 		td := finish(ts)
 
@@ -152,16 +167,16 @@ func testInterface() {
 		envs := EnvArrayPreAlloc{}
 
 		// assert(envs.foo == false, "foo!")
-		envs.initData()
+		envs.InitData()
 		// assert(envs.foo == true, "foo!!!")
 
 		for i := 0; i < ENV_MAX; i++ {
-			envs.putDataItem(1, 1)
+			envs.PutDataItem(1, 1)
 		}
 
-		envs.closeData()
+		envs.CloseData()
 
-		nestedEnvelopes := envs.getNestedEnvelopes()
+		nestedEnvelopes := envs.GetNestedEnvelopes()
 
 		td := finish(ts)
 
@@ -173,16 +188,16 @@ func testInterface() {
 		envs := EnvArrayPreAlloc{}
 
 		// assert(envs.foo == false, "foo!")
-		envs.initData()
+		envs.InitData()
 		// assert(envs.foo == true, "foo!!!")
 
 		for i := 0; i < ENV_MAX; i++ {
-			envs.putDataItem(1, ENV_MAX-i)
+			envs.PutDataItem(1, ENV_MAX-i)
 		}
 
-		envs.closeData()
+		envs.CloseData()
 
-		nestedEnvelopes := envs.getNestedEnvelopes()
+		nestedEnvelopes := envs.GetNestedEnvelopes()
 
 		td := finish(ts)
 
@@ -194,16 +209,16 @@ func testInterface() {
 		envs := EnvArrayPreAlloc{}
 
 		// assert(envs.foo == false, "foo!")
-		envs.initData()
+		envs.InitData()
 		// assert(envs.foo == true, "foo!!!")
 
 		for i := 0; i < ENV_MAX; i++ {
-			envs.putDataItem(ENV_MAX-i, 1)
+			envs.PutDataItem(ENV_MAX-i, 1)
 		}
 
-		envs.closeData()
+		envs.CloseData()
 
-		nestedEnvelopes := envs.getNestedEnvelopes()
+		nestedEnvelopes := envs.GetNestedEnvelopes()
 
 		td := finish(ts)
 
@@ -212,6 +227,7 @@ func testInterface() {
 
 }
 
+/*****
 type RussianNesting interface {
 	initData()
 	putDataItem(int, int)
@@ -269,6 +285,7 @@ func (x EnvArrayPreAlloc) getNestedEnvelopes() Envelopes {
 func (x EnvArrayPreAlloc) getNestedCount() int {
 	return x.base.getNestedCount()
 }
+*****/
 
 func testArray() {
 	ts := start()
@@ -291,7 +308,7 @@ func testArray() {
 
 	envelopes = envSort(envelopes)
 
-	// assert(envelopes[0].width == 1 && envelopes[0].height == 1, "bad sort")
+	// assert(envelopes[0].Width == 1 && envelopes[0].Height == 1, "bad sort")
 
 	filteredEnvelopes := envFilter(envelopes)
 
@@ -316,7 +333,7 @@ func testSimpleMap() {
 	envelopes := envKeys(envMapByStruct)
 	envSortInPlace(&envelopes)
 
-	assert(envelopes[0].width == 1 && envelopes[0].height == 1, "bad sort")
+	assert(envelopes[0].Width == 1 && envelopes[0].Height == 1, "bad sort")
 
 	filteredEnvelopes := envFilter(envelopes)
 
@@ -332,7 +349,7 @@ type EnvMapByStruct map[Envelope]bool
 
 func envPut(envMapByStruct *EnvMapByStruct, width int, height int) {
 
-	(*envMapByStruct)[Envelope{width, height}] = true
+	(*envMapByStruct)[Envelope{Width: width, Height: height}] = true
 
 }
 
@@ -340,8 +357,8 @@ func envKeys(envMapByStruct EnvMapByStruct) Envelopes {
 	envelopes := make([]Envelope, len(envMapByStruct))
 	i := 0
 	for keys := range envMapByStruct {
-		envelopes[i].width = keys.width
-		envelopes[i].height = keys.height
+		envelopes[i].Width = keys.Width
+		envelopes[i].Height = keys.Height
 		i++
 	}
 	return envelopes
@@ -1119,8 +1136,8 @@ func testEnvelopesStructOps() {
 		readTestStarted := start()            // start our timer for this read test run
 		for i := 0; i < len(envelopes); i++ { // walk thru the collection
 			envIth := envelopes[i]      // envelope instance at index i
-			envIWidth := envIth.width   // width for this envelope instance
-			envIHeight := envIth.height // height for this envelope instance
+			envIWidth := envIth.Width   // width for this envelope instance
+			envIHeight := envIth.Height // height for this envelope instance
 			// be sure the read doesn't get optimized out!!!
 			if envIWidth > DIM_MAX || envIHeight > DIM_MAX {
 				fmt.Println("Never!!!")
@@ -1172,8 +1189,8 @@ func testEnvelopeStructArrayInterOps() {
 
 	for i := 0; i < len(envA); i++ {
 		// equivalent width values
-		assert(envA[i][WIDTH] == envS[i].width, fmt.Sprintf("mismatched env[%d] width", i))
+		assert(envA[i][WIDTH] == envS[i].Width, fmt.Sprintf("mismatched env[%d] width", i))
 		// equivalent height values
-		assert(envA[i][HEIGHT] == envS[i].height, fmt.Sprintf("mismatched env[%d] height", i))
+		assert(envA[i][HEIGHT] == envS[i].Height, fmt.Sprintf("mismatched env[%d] height", i))
 	}
 }
