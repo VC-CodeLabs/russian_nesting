@@ -12,6 +12,7 @@ import (
 var TEST_RUNS int = 0
 
 func main() {
+
 	testRunPtr := flag.Int("t", TEST_RUNS, "specifies the # times to repeat tests")
 	flag.Parse()
 	if testRunPtr != nil {
@@ -24,6 +25,7 @@ func main() {
 	// testEnvMapping()
 	testArray()
 	testSimpleMap()
+	testInterface()
 }
 
 const DIM_MIN = 1
@@ -165,10 +167,177 @@ func nanosAvgToDuration[N int | int64 | float64](totalNanos N, counter N) time.D
 // tests
 //
 
+func testInterface() {
+
+	{
+		ts := start()
+		envs := EnvArrayWithAppend{}
+
+		// assert(envs.foo == false, "foo!")
+		envs.initData()
+		// assert(envs.foo == true, "foo!!!")
+
+		for i := 0; i < ENV_MAX; i++ {
+			envs.putDataItem(ENV_MAX-i, ENV_MAX-i)
+		}
+
+		envs.closeData()
+
+		nestedEnvelopes := envs.getNestedEnvelopes()
+
+		td := finish(ts)
+
+		fmt.Printf("Found %d nested envelopes in %s with append interface\n", len(nestedEnvelopes), td)
+	}
+
+	{
+		ts := start()
+		envs := EnvArrayPreAlloc{}
+
+		// assert(envs.foo == false, "foo!")
+		envs.initData()
+		// assert(envs.foo == true, "foo!!!")
+
+		for i := 0; i < ENV_MAX; i++ {
+			envs.putDataItem(ENV_MAX-i, ENV_MAX-i)
+		}
+
+		envs.closeData()
+
+		nestedEnvelopes := envs.getNestedEnvelopes()
+
+		td := finish(ts)
+
+		fmt.Printf("Found %d nested envelopes in %s with prealloc'd interface\n", len(nestedEnvelopes), td)
+	}
+
+	{
+		ts := start()
+		envs := EnvArrayPreAlloc{}
+
+		// assert(envs.foo == false, "foo!")
+		envs.initData()
+		// assert(envs.foo == true, "foo!!!")
+
+		for i := 0; i < ENV_MAX; i++ {
+			envs.putDataItem(1, 1)
+		}
+
+		envs.closeData()
+
+		nestedEnvelopes := envs.getNestedEnvelopes()
+
+		td := finish(ts)
+
+		fmt.Printf("Found %d nested envelopes in %s with prealloc'd interface\n", len(nestedEnvelopes), td)
+	}
+
+	{
+		ts := start()
+		envs := EnvArrayPreAlloc{}
+
+		// assert(envs.foo == false, "foo!")
+		envs.initData()
+		// assert(envs.foo == true, "foo!!!")
+
+		for i := 0; i < ENV_MAX; i++ {
+			envs.putDataItem(1, ENV_MAX-i)
+		}
+
+		envs.closeData()
+
+		nestedEnvelopes := envs.getNestedEnvelopes()
+
+		td := finish(ts)
+
+		fmt.Printf("Found %d nested envelopes in %s with prealloc'd interface\n", len(nestedEnvelopes), td)
+	}
+
+	{
+		ts := start()
+		envs := EnvArrayPreAlloc{}
+
+		// assert(envs.foo == false, "foo!")
+		envs.initData()
+		// assert(envs.foo == true, "foo!!!")
+
+		for i := 0; i < ENV_MAX; i++ {
+			envs.putDataItem(ENV_MAX-i, 1)
+		}
+
+		envs.closeData()
+
+		nestedEnvelopes := envs.getNestedEnvelopes()
+
+		td := finish(ts)
+
+		fmt.Printf("Found %d nested envelopes in %s with prealloc'd interface\n", len(nestedEnvelopes), td)
+	}
+
+}
+
+type RussianNesting interface {
+	initData()
+	putDataItem(int, int)
+	closeData()
+	getNestedEnvelopes() Envelopes
+	getNestedCount() int
+}
+
+type EnvArrayWithAppend struct {
+	envelopes Envelopes
+}
+
+func (x EnvArrayWithAppend) initData() {
+}
+
+func (x *EnvArrayWithAppend) putDataItem(w int, h int) {
+	(*x).envelopes = append(x.envelopes, Envelope{w, h})
+}
+
+func (x EnvArrayWithAppend) closeData() {
+
+}
+
+func (x EnvArrayWithAppend) getNestedEnvelopes() Envelopes {
+	return envFilter(envSort(x.envelopes))
+}
+
+func (x EnvArrayWithAppend) getNestedCount() int {
+	return len(x.getNestedEnvelopes())
+}
+
+type EnvArrayPreAlloc struct {
+	base      EnvArrayWithAppend
+	itemCount int
+}
+
+func (x *EnvArrayPreAlloc) initData() {
+	(*x).base.envelopes = make(Envelopes, ENV_MAX)
+	// (*x).itemCount = 0
+}
+
+func (x *EnvArrayPreAlloc) putDataItem(w int, h int) {
+	(*x).base.envelopes[x.itemCount] = Envelope{w, h}
+	(*x).itemCount++
+}
+
+func (x *EnvArrayPreAlloc) closeData() {
+	(*x).base.envelopes = x.base.envelopes[:x.itemCount]
+}
+
+func (x EnvArrayPreAlloc) getNestedEnvelopes() Envelopes {
+	return x.base.getNestedEnvelopes()
+}
+
+func (x EnvArrayPreAlloc) getNestedCount() int {
+	return x.base.getNestedCount()
+}
+
 func testArray() {
 	ts := start()
 
-	envelopes := make(Envelopes, DIM_MAX)
+	envelopes := make(Envelopes, ENV_MAX)
 	// envSeen := make(EnvMapByStruct, ENV_MAX)
 
 	for i := 0; i < ENV_MAX; i++ {
@@ -182,9 +351,11 @@ func testArray() {
 		// }
 	}
 
-	envSort(&envelopes)
+	// envelopes = envelopes[ENV_MAX-10:]
 
-	assert(envelopes[0].width == 1 && envelopes[0].height == 1, "bad sort")
+	envelopes = envSort(envelopes)
+
+	// assert(envelopes[0].width == 1 && envelopes[0].height == 1, "bad sort")
 
 	filteredEnvelopes := envFilter(envelopes)
 
@@ -207,7 +378,7 @@ func testSimpleMap() {
 	}
 
 	envelopes := envKeys(envMapByStruct)
-	envSort(&envelopes)
+	envSortInPlace(&envelopes)
 
 	assert(envelopes[0].width == 1 && envelopes[0].height == 1, "bad sort")
 
@@ -248,8 +419,13 @@ func envCmp(a Envelope, b Envelope) int {
 	return diff
 }
 
-func envSort(envelopes *Envelopes) {
+func envSortInPlace(envelopes *Envelopes) {
 	slices.SortFunc(*envelopes, envCmp)
+}
+
+func envSort(envelopes Envelopes) Envelopes {
+	slices.SortFunc(envelopes, envCmp)
+	return envelopes
 }
 
 func envFilter(envelopes Envelopes) Envelopes {
