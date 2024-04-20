@@ -2,6 +2,30 @@ requires GOTMPDIR setting
 bash: `export GOTMPDIR=~/Projects/tmp`  
 cmd: `set GOTMPDIR=%USERPROFILE%\Projects\tmp`  
 
+# Supporting Stdin
+
+NOTE if executing from a bash shell, you *must* use cat pipe output, otherwise ^D won't work to terminate input!
+
+Bash, manual input:  
+`cat | go run JeffR_RussianNesting_Solution.go`  
+// with cat piped, ^D works to terminate manual input
+
+this is not an issue from Windows cmd line or when piping / redirecting file contents
+
+Windows, manual input:  
+`go run JeffR_RussianNesting_Solution.go`  
+// ^Z works to terminate manual input
+
+Read input from stdin (file), bash or Windows:
+
+`go run JeffR_RussianNesting_Solution.go < {filespec}`
+
+e.g.
+
+`go run JeffR_RussianNesting_Solution.go < samples/JeffR_Alek_Example1.txt`
+
+(flip the slash(es) on Windows)
+
 # Envelope: Struct vs Array
 
 When considering how to implement the solution, the basic question of whether to represent each envelope as a struct:

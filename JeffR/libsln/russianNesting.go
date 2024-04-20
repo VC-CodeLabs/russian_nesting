@@ -1,4 +1,4 @@
-package libsln
+package librn
 
 import (
 	"JeffR/lib"
