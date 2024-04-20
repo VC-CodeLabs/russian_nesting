@@ -91,7 +91,7 @@ func (x EnvArrayWithAppend) CloseData() {
 }
 
 func (x EnvArrayWithAppend) GetNestedEnvelopes() Envelopes {
-	return envFilter(envSort(x.envelopes))
+	return EnvFilter(EnvSort(x.envelopes))
 }
 
 func (x EnvArrayWithAppend) GetNestedCount() int {
@@ -133,16 +133,18 @@ func envCmp(a Envelope, b Envelope) int {
 	return diff
 }
 
+/*****
 func envSortInPlace(envelopes *Envelopes) {
 	slices.SortFunc(*envelopes, envCmp)
 }
+*****/
 
-func envSort(envelopes Envelopes) Envelopes {
+func EnvSort(envelopes Envelopes) Envelopes {
 	slices.SortFunc(envelopes, envCmp)
 	return envelopes
 }
 
-func envFilter(envelopes Envelopes) Envelopes {
+func EnvFilter(envelopes Envelopes) Envelopes {
 	assert(envelopes != nil && len(envelopes) > 0, "empty []Envelope collection, nothing to filter")
 
 	filteredEnvelopes := make(Envelopes, 0)

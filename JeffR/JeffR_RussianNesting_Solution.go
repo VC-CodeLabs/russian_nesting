@@ -3,7 +3,6 @@ package main
 import (
 	"JeffR/lib"
 	. "JeffR/libsln"
-	"cmp"
 	"flag"
 	"fmt"
 	"slices"
@@ -205,11 +204,11 @@ func testArray() {
 
 	// envelopes = envelopes[ENV_MAX-10:]
 
-	envelopes = envSort(envelopes)
+	sortedEnvelopes := envSort(envelopes)
 
 	// assert(envelopes[0].Width == 1 && envelopes[0].Height == 1, "bad sort")
 
-	filteredEnvelopes := envFilter(envelopes)
+	filteredEnvelopes := envFilter(sortedEnvelopes)
 
 	// assert(len(filteredEnvelopes) == len(envelopes), "bad filter")
 
@@ -230,11 +229,11 @@ func testSimpleMap() {
 	}
 
 	envelopes := envKeys(envMapByStruct)
-	envSortInPlace(&envelopes)
+	sortedEnvelopes := envSort(envelopes)
 
 	assert(envelopes[0].Width == 1 && envelopes[0].Height == 1, "bad sort")
 
-	filteredEnvelopes := envFilter(envelopes)
+	filteredEnvelopes := envFilter(sortedEnvelopes)
 
 	assert(len(filteredEnvelopes) == len(envelopes), "bad filter")
 
@@ -263,6 +262,7 @@ func envKeys(envMapByStruct EnvMapByStruct) Envelopes {
 	return envelopes
 }
 
+/*****
 func envCmp(a Envelope, b Envelope) int {
 	diff := cmp.Compare(envWidth(a), envWidth(b))
 	if diff == 0 {
@@ -304,6 +304,17 @@ func envFilter(envelopes Envelopes) Envelopes {
 
 	return filteredEnvelopes
 
+}
+*****/
+
+// local proxies to minimize diffs during isolation work
+
+func envSort(envelopes Envelopes) Envelopes {
+	return EnvSort(envelopes)
+}
+
+func envFilter(envelopes Envelopes) Envelopes {
+	return EnvFilter(envelopes)
 }
 
 // ////////////////////////////////////////////////////////////////
