@@ -1,11 +1,11 @@
 package main
 
 import (
+	"JeffR/lib"
 	"cmp"
 	"flag"
 	"fmt"
 	"slices"
-	"strings"
 	"time"
 )
 
@@ -67,6 +67,7 @@ func envHeight(env Envelope) int {
 	return env.height
 }
 
+/*****
 // returns time.Now()
 //
 // use along with finish() to time some code:
@@ -161,6 +162,39 @@ func nanosToDuration[N int | int64 | float64](nanos N) time.Duration {
 // computes the average time from total / counter, converts to duration
 func nanosAvgToDuration[N int | int64 | float64](totalNanos N, counter N) time.Duration {
 	return nanosToDuration(float64(totalNanos) / float64(counter))
+}
+*****/
+
+//////////////////////////////////////////////////////////////////
+// local proxies for fx moved to lib
+//
+
+func start() time.Time {
+	return lib.Start()
+}
+
+func finish(started time.Time) time.Duration {
+	return lib.Finish(started)
+}
+
+func ternary[B bool, V int | int64 | float32 | float64 | string](cond bool, ifTrue V, ifFalse V) V {
+	return lib.Ternary(cond, ifTrue, ifFalse)
+}
+
+func assert(cond bool, msg string) {
+	lib.Assert(cond, msg)
+}
+
+func sanitizeDuration(d time.Duration) string {
+	return lib.SanitizeDuration(d)
+}
+
+func nanosToDuration[N int | int64 | float64](nanos N) time.Duration {
+	return lib.NanosToDuration(nanos)
+}
+
+func nanosAvgToDuration[N int | int64 | float64](totalNanos N, counter N) time.Duration {
+	return lib.NanosAvgToDuration(totalNanos, counter)
 }
 
 //////////////////////////////////////////////////////////////////
