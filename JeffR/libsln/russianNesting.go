@@ -2,8 +2,6 @@ package librn
 
 import (
 	"JeffR/lib"
-	"cmp"
-	"slices"
 )
 
 const DIM_MIN = 1
@@ -125,6 +123,7 @@ func (x EnvArrayPreAlloc) GetNestedCount() int {
 	return x.base.GetNestedCount()
 }
 
+/*****
 func envCmp(a Envelope, b Envelope) int {
 	diff := cmp.Compare(envWidth(a), envWidth(b))
 	if diff == 0 {
@@ -133,11 +132,11 @@ func envCmp(a Envelope, b Envelope) int {
 	return diff
 }
 
-/*
+/ *
 func envSortInPlace(envelopes *Envelopes) {
 	slices.SortFunc(*envelopes, envCmp)
 }
-*/
+* /
 
 func EnvSort(envelopes Envelopes) Envelopes {
 	slices.SortFunc(envelopes, envCmp)
@@ -169,5 +168,5 @@ func EnvFilter(envelopes Envelopes) Envelopes {
 	return filteredEnvelopes
 
 }
-
+*****/
 //////////////////////////////////////////////////////////////////

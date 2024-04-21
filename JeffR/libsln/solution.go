@@ -1,11 +1,11 @@
 package librn
 
 import (
-	"JeffR/lib"
 	"cmp"
 	"slices"
 )
 
+/*****
 const DIM_MIN = 1
 
 // var DIM_MAX = int(math.Pow(10, 5))
@@ -124,6 +124,7 @@ func (x EnvArrayPreAlloc) GetNestedEnvelopes() Envelopes {
 func (x EnvArrayPreAlloc) GetNestedCount() int {
 	return x.base.GetNestedCount()
 }
+*****/
 
 func envCmp(a Envelope, b Envelope) int {
 	diff := cmp.Compare(envWidth(a), envWidth(b))
