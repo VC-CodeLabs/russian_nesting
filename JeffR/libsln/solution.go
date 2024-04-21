@@ -21,26 +21,42 @@ func EnvSort(envelopes Envelopes) Envelopes {
 func EnvFilter(envelopes Envelopes) Envelopes {
 	assert(envelopes != nil && len(envelopes) > 0, "empty []Envelope collection, nothing to filter")
 
-	filteredEnvelopes := make(Envelopes, 0)
-	var lastEnv = Envelope{-1, -1}
+	var maxNestedEnvelopes Envelopes
+
 	// var nextEnv = Envelope{DIM_MAX + 1, DIM_MAX + 1}
-	for i, env := range envelopes {
-		if i > 0 {
-			if envWidth(env) > envWidth(lastEnv) && envHeight(env) > envHeight(lastEnv) {
-				// last envelope would fit inside the current one
-				filteredEnvelopes = append(filteredEnvelopes, lastEnv)
+	countOfEnvelopes := len(envelopes)
+
+	for i := range envelopes {
+
+		if i > 0 && len(maxNestedEnvelopes) > countOfEnvelopes-i {
+			// can't possibly find a bigger one, don't bother
+			break
+		}
+
+		filteredEnvelopes := make(Envelopes, 0)
+		var lastEnv = Envelope{-1, -1}
+		for j := i; j < countOfEnvelopes; j++ {
+			env := envelopes[j]
+			if j > i {
+				if envWidth(env) > envWidth(lastEnv) && envHeight(env) > envHeight(lastEnv) {
+					// last envelope would fit inside the current one
+					filteredEnvelopes = append(filteredEnvelopes, lastEnv)
+					lastEnv = env
+				}
+			} else {
 				lastEnv = env
 			}
-		} else {
-			lastEnv = env
-		}
-		if i == len(envelopes)-1 {
-			filteredEnvelopes = append(filteredEnvelopes, lastEnv)
+			if j == countOfEnvelopes-1 {
+				filteredEnvelopes = append(filteredEnvelopes, lastEnv)
+			}
 		}
 
+		if i == 0 || len(filteredEnvelopes) > len(maxNestedEnvelopes) {
+			maxNestedEnvelopes = filteredEnvelopes
+		}
 	}
 
-	return filteredEnvelopes
+	return maxNestedEnvelopes
 
 }
 
