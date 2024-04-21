@@ -86,7 +86,7 @@ func processData(rnMgr *IRussianNestingManager, input string) {
 			if n < 0 {
 				panic(fmt.Sprintf("Missing `,` delimiter in input at offset %d", i))
 			}
-			width, err = strconv.Atoi(tail[0:n])
+			width, err = strconv.Atoi(strings.TrimSpace(tail[0:n]))
 			if err != nil {
 				panic(err)
 			}
@@ -97,7 +97,7 @@ func processData(rnMgr *IRussianNestingManager, input string) {
 			if n < 0 {
 				panic(fmt.Sprintf("Missing closing bracket/brace in input at offset %d", i))
 			}
-			height, err = strconv.Atoi(tail[0:n])
+			height, err = strconv.Atoi(strings.TrimSpace(tail[0:n]))
 			if err != nil {
 				panic(err)
 			}
