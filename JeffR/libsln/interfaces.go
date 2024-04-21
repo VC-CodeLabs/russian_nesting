@@ -1,5 +1,6 @@
 package librn
 
+/*****
 import (
 	"JeffR/lib"
 )
@@ -60,6 +61,7 @@ func envHeight(env Envelope) int {
 func assert(cond bool, msg string) {
 	lib.Assert(cond, msg)
 }
+*****/
 
 //////////////////////////////////////////////////////////////////
 // tests

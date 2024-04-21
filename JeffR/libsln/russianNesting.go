@@ -65,6 +65,7 @@ func assert(cond bool, msg string) {
 // tests
 //
 
+/*****
 type RussianNesting interface {
 	InitData()
 	PutDataItem(int, int)
@@ -122,5 +123,6 @@ func (x EnvArrayPreAlloc) GetNestedEnvelopes() Envelopes {
 func (x EnvArrayPreAlloc) GetNestedCount() int {
 	return x.base.GetNestedCount()
 }
+*****/
 
 //////////////////////////////////////////////////////////////////
