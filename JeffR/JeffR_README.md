@@ -6,6 +6,8 @@ cmd: `set GOTMPDIR=%USERPROFILE%\Projects\tmp`
 
 NOTE if executing from a bash shell, you *must* use cat pipe output, otherwise ^D won't work to terminate input!
 
+@see https://stackoverflow.com/questions/15673120/how-can-i-signal-eof-to-close-stdin-under-the-git-bash-terminal-on-windows-ctrl
+
 Bash, manual input:  
 `cat | go run JeffR_RussianNesting_Solution.go`  
 // with cat piped, ^D works to terminate manual input
