@@ -1,14 +1,15 @@
 package librn
 
 import (
+	"JeffR/lib"
 	"cmp"
 	"slices"
 )
 
 func envCmp(a Envelope, b Envelope) int {
-	diff := cmp.Compare(envWidth(a), envWidth(b))
+	diff := cmp.Compare(EnvWidth(a), EnvWidth(b))
 	if diff == 0 {
-		diff = cmp.Compare(envHeight(a), envHeight(b))
+		diff = cmp.Compare(EnvHeight(a), EnvHeight(b))
 	}
 	return diff
 }
@@ -19,7 +20,7 @@ func EnvSort(envelopes Envelopes) Envelopes {
 }
 
 func EnvFilter(envelopes Envelopes) Envelopes {
-	assert(envelopes != nil && len(envelopes) > 0, "empty []Envelope collection, nothing to filter")
+	lib.Assert(envelopes != nil && len(envelopes) > 0, "empty []Envelope collection, nothing to filter")
 
 	var maxNestedEnvelopes Envelopes
 
@@ -38,7 +39,7 @@ func EnvFilter(envelopes Envelopes) Envelopes {
 		for j := i; j < countOfEnvelopes; j++ {
 			env := envelopes[j]
 			if j > i {
-				if envWidth(env) > envWidth(lastEnv) && envHeight(env) > envHeight(lastEnv) {
+				if EnvWidth(env) > EnvWidth(lastEnv) && EnvHeight(env) > EnvHeight(lastEnv) {
 					// last envelope would fit inside the current one
 					filteredEnvelopes = append(filteredEnvelopes, lastEnv)
 					lastEnv = env

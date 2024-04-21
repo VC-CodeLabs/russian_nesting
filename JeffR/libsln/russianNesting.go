@@ -1,9 +1,5 @@
 package librn
 
-import (
-	"JeffR/lib"
-)
-
 const DIM_MIN = 1
 
 // var DIM_MAX = int(math.Pow(10, 5))
@@ -41,24 +37,6 @@ func EnvWidth(env Envelope) int {
 
 func EnvHeight(env Envelope) int {
 	return env.Height
-}
-
-// local proxies to minimize diffs during isolation work
-
-func envWidth(env Envelope) int {
-	return EnvWidth(env)
-}
-
-func envHeight(env Envelope) int {
-	return EnvHeight(env)
-}
-
-//////////////////////////////////////////////////////////////////
-// local proxies for fx moved to lib
-//
-
-func assert(cond bool, msg string) {
-	lib.Assert(cond, msg)
 }
 
 //////////////////////////////////////////////////////////////////
