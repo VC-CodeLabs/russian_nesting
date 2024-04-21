@@ -11,6 +11,7 @@ const ENV_MIN = 1
 // var ENV_MAX = DIM_MAX
 const ENV_MAX = DIM_MAX
 
+/*****
 type EnvStruct struct {
 	Width  int
 	Height int
@@ -38,5 +39,5 @@ func EnvWidth(env Envelope) int {
 func EnvHeight(env Envelope) int {
 	return env.Height
 }
-
+*****/
 //////////////////////////////////////////////////////////////////

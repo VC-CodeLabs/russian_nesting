@@ -1,5 +1,8 @@
 package librn
 
+import . "JeffR/libsln"
+
+/*****
 const DIM_MIN = 1
 
 // var DIM_MAX = int(math.Pow(10, 5))
@@ -15,6 +18,7 @@ type EnvStruct struct {
 	Width  int
 	Height int
 }
+*****/
 
 type EnvelopesS []EnvStruct
 
@@ -28,6 +32,7 @@ const (
 
 type EnvelopesA [][2]int
 
+/*****
 type Envelope EnvStruct
 type Envelopes []Envelope
 
@@ -38,5 +43,5 @@ func EnvWidth(env Envelope) int {
 func EnvHeight(env Envelope) int {
 	return env.Height
 }
-
+*****/
 //////////////////////////////////////////////////////////////////

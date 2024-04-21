@@ -3,6 +3,7 @@ package main
 import (
 	"JeffR/lib"
 	. "JeffR/libsln"
+	. "JeffR/test/altlibsln"
 	"flag"
 	"fmt"
 	"slices"
