@@ -203,6 +203,18 @@ func testArray() {
 		// }
 	}
 
+	/*****
+	o := "["
+	for i, v := range envelopes {
+		if i > 0 {
+			o += ","
+		}
+		o += fmt.Sprintf("[%d,%d]", v.Width, v.Height)
+	}
+	o += "]"
+	fmt.Printf("Max Envelopes: %s\n", o)
+	*****/
+
 	// envelopes = envelopes[ENV_MAX-10:]
 
 	sortedEnvelopes := envSort(envelopes)
@@ -477,6 +489,18 @@ func testEnvMapping() {
 		for i := 0; i < ENV_MAX; i++ { // creating N max envelopes
 			envSame = append(envSame, Envelope{1, 1}) // append a new envelope
 		}
+
+		/*****
+		o := "["
+		for i, v := range envSame {
+			if i > 0 {
+				o += ","
+			}
+			o += fmt.Sprintf("[%d,%d]", v.Width, v.Height)
+		}
+		o += "]"
+		fmt.Printf("Max Matching Envelopes: %s\n", o)
+		*****/
 
 		{
 			tfd := 0
