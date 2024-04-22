@@ -1,7 +1,7 @@
 package librn
 
 import (
-	. "JeffR/lib"
+	"JeffR/lib"
 	"fmt"
 	"io"
 	"log"
@@ -9,38 +9,6 @@ import (
 	"strconv"
 	"strings"
 )
-
-/*****
-func main() {
-
-	verbosePtr := flag.Bool("v", VERBOSE, "specifies whether to emit troubleshooting output")
-	flag.Parse()
-
-	if verbosePtr != nil {
-		VERBOSE = *verbosePtr
-	}
-
-	// get the max nested envelopes from stdin
-	envelopes := getNestedEnvelopes(os.Stdin)
-
-	if VERBOSE {
-		fmt.Println("Max Nested Envelopes:")
-		fmt.Print("[ ")
-		for i, envelope := range envelopes {
-			if i > 0 {
-				fmt.Print(", ")
-			}
-			fmt.Printf("[ %d, %d ]", EnvWidth(envelope), EnvHeight(envelope))
-
-		}
-		fmt.Println(" ]")
-		fmt.Printf("Max Nested Envelope Count: %d", len(envelopes))
-	} else {
-		// standard output is just the # of nested envelopes
-		fmt.Printf("%d", len(envelopes))
-	}
-}
-*****/
 
 // get the max nested envelope collection from
 // a set of envelopes defined in an input file
@@ -65,7 +33,7 @@ func GetNestedEnvelopes(file *os.File) Envelopes {
 // read envelope data from a file and put it somewhere
 func ReadEnvelopeDatafile(file *os.File, putfx func(w int, h int)) {
 
-	if VERBOSE {
+	if lib.VERBOSE {
 		fmt.Printf("reading from source %s...\n", file.Name())
 	}
 
@@ -73,7 +41,7 @@ func ReadEnvelopeDatafile(file *os.File, putfx func(w int, h int)) {
 	// we can probably get away with just reading all the contents in at once
 	stdin, err := io.ReadAll(file)
 
-	if VERBOSE {
+	if lib.VERBOSE {
 		fmt.Println("...read from source.")
 	}
 
@@ -90,7 +58,7 @@ func ReadEnvelopeDatafile(file *os.File, putfx func(w int, h int)) {
 
 func ReadEnvelopeData(input string, putfx func(w int, h int)) {
 
-	if VERBOSE {
+	if lib.VERBOSE {
 		if len(input) > 200 {
 			log.Printf("input: %d chars\n", len(input))
 		} else {
@@ -129,7 +97,7 @@ func ReadEnvelopeData(input string, putfx func(w int, h int)) {
 		// get the tail of the input starting at the current offset
 		tail := input[i:]
 
-		if VERBOSE {
+		if lib.VERBOSE {
 			if len(tail) > 40 {
 				log.Printf("mode: %d offset: %d tail: `%s`...\n", mode, i, tail[0:40])
 			} else {
@@ -193,7 +161,7 @@ func ReadEnvelopeData(input string, putfx func(w int, h int)) {
 				panic(err)
 			}
 
-			if VERBOSE {
+			if lib.VERBOSE {
 				fmt.Printf("Storing [ %d, %d ]\n", width, height)
 			}
 
