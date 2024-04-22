@@ -5,11 +5,7 @@ import (
 	. "JeffR/libsln"
 	"flag"
 	"fmt"
-	"io"
-	"log"
 	"os"
-	"strconv"
-	"strings"
 )
 
 func main() {
@@ -22,7 +18,7 @@ func main() {
 	}
 
 	// get the max nested envelopes from stdin
-	envelopes := getNestedEnvelopes(os.Stdin)
+	envelopes := GetNestedEnvelopes(os.Stdin)
 
 	if VERBOSE {
 		fmt.Println("Max Nested Envelopes:")
@@ -42,6 +38,7 @@ func main() {
 	}
 }
 
+/*****
 // get the max nested envelope collection from
 // a set of envelopes defined in an input file
 // (which may be stdin!)
@@ -215,3 +212,4 @@ func readEnvelopeData(input string, putfx func(w int, h int)) {
 	}
 
 }
+*****/

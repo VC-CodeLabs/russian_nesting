@@ -1,9 +1,7 @@
-package main
+package librn
 
 import (
 	. "JeffR/lib"
-	. "JeffR/libsln"
-	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -12,6 +10,7 @@ import (
 	"strings"
 )
 
+/*****
 func main() {
 
 	verbosePtr := flag.Bool("v", VERBOSE, "specifies whether to emit troubleshooting output")
@@ -41,18 +40,19 @@ func main() {
 		fmt.Printf("%d", len(envelopes))
 	}
 }
+*****/
 
 // get the max nested envelope collection from
 // a set of envelopes defined in an input file
 // (which may be stdin!)
-func getNestedEnvelopes(file *os.File) Envelopes {
+func GetNestedEnvelopes(file *os.File) Envelopes {
 	// instantiate our manager
 	rnMgr := IRussianNestingManager{}
 
 	// prep data storage
 	rnMgr.InitData()
 	// feed input data into our manager
-	readEnvelopeDatafile(file, rnMgr.PutDataItem)
+	ReadEnvelopeDatafile(file, rnMgr.PutDataItem)
 	// finalize data storage
 	rnMgr.CloseData()
 
@@ -63,7 +63,7 @@ func getNestedEnvelopes(file *os.File) Envelopes {
 }
 
 // read envelope data from a file and put it somewhere
-func readEnvelopeDatafile(file *os.File, putfx func(w int, h int)) {
+func ReadEnvelopeDatafile(file *os.File, putfx func(w int, h int)) {
 
 	if VERBOSE {
 		fmt.Printf("reading from source %s...\n", file.Name())
@@ -85,10 +85,10 @@ func readEnvelopeDatafile(file *os.File, putfx func(w int, h int)) {
 	// transform the byte array read from the file into a string
 	input := string(stdin)
 
-	readEnvelopeData(input, putfx)
+	ReadEnvelopeData(input, putfx)
 }
 
-func readEnvelopeData(input string, putfx func(w int, h int)) {
+func ReadEnvelopeData(input string, putfx func(w int, h int)) {
 
 	if VERBOSE {
 		if len(input) > 200 {
