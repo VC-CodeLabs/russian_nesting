@@ -1,6 +1,7 @@
 package main
 
 import (
+	. "JeffR/lib"
 	. "JeffR/libsln"
 	"flag"
 	"fmt"
@@ -10,9 +11,6 @@ import (
 	"strconv"
 	"strings"
 )
-
-// for troubleshooting, disabled by default
-var VERBOSE bool = false
 
 func main() {
 
