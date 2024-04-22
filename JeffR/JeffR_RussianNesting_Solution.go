@@ -10,6 +10,7 @@ import (
 
 func main() {
 
+	// -v for troubleshooting only, defaults to disabled
 	verbosePtr := flag.Bool("v", lib.VERBOSE, "specifies whether to emit troubleshooting output")
 	flag.Parse()
 

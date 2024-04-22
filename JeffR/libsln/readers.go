@@ -56,6 +56,7 @@ func ReadEnvelopeDatafile(file *os.File, putfx func(w int, h int)) {
 	ReadEnvelopeData(input, putfx)
 }
 
+// read envelope data from a string and put it somewhere
 func ReadEnvelopeData(input string, putfx func(w int, h int)) {
 
 	if lib.VERBOSE {
