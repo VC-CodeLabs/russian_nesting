@@ -12,10 +12,15 @@ func main() {
 
 	// -v for troubleshooting only, defaults to disabled
 	verbosePtr := flag.Bool("v", lib.VERBOSE, "specifies whether to emit troubleshooting output")
+	threadedPtr := flag.Bool("t", librn.THREADED, "specifies whether to use threading")
 	flag.Parse()
 
 	if verbosePtr != nil {
 		lib.VERBOSE = *verbosePtr
+	}
+
+	if threadedPtr != nil {
+		librn.THREADED = *threadedPtr
 	}
 
 	// get the max nested envelopes from stdin

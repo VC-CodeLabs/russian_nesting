@@ -4,6 +4,7 @@ import (
 	"JeffR/lib"
 	librn "JeffR/libsln"
 	"bufio"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -18,7 +19,32 @@ type TestCase struct {
 
 type TestCases []TestCase
 
+var TEST_RUNS int = 1
+var TEST_NAME string = ""
+
 func main() {
+
+	verbosePtr := flag.Bool("v", lib.VERBOSE, "specifies whether to emit troubleshooting output")
+	threadedPtr := flag.Bool("t", librn.THREADED, "specifies whether to use threading")
+	repeatPtr := flag.Int("r", TEST_RUNS, "# of times to repeat each test")
+	namePtr := flag.String("f", TEST_NAME, "specific test to run")
+	flag.Parse()
+
+	if verbosePtr != nil {
+		lib.VERBOSE = *verbosePtr
+	}
+
+	if threadedPtr != nil {
+		librn.THREADED = *threadedPtr
+	}
+
+	if repeatPtr != nil {
+		TEST_RUNS = *repeatPtr
+	}
+
+	if namePtr != nil {
+		TEST_NAME = *namePtr
+	}
 
 	testCases := make(TestCases, 0)
 	file, err := os.Open("answerKey.txt")
@@ -49,32 +75,48 @@ func main() {
 
 	fmt.Printf("Read %d test cases from answerKey.txt\n", len(testCases))
 
+	if TEST_RUNS > 1 {
+		fmt.Printf("Repeating each test case %d times\n", TEST_RUNS)
+	}
+
 	for _, testCase := range testCases {
-		runTest(testCase)
+		if len(TEST_NAME) == 0 || TEST_NAME == testCase.filename {
+			runTest(testCase)
+		}
 	}
 }
 
 func runTest(testCase TestCase) {
-	ts := lib.Start()
-	testFile, err := os.Open(testCase.filename)
 
-	if err != nil {
-		log.Fatal(err)
+	var runDuration int64 = 0
+	for r := 0; r < TEST_RUNS; r++ {
+		ts := lib.Start()
+		testFile, err := os.Open(testCase.filename)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		envelopes := librn.GetNestedEnvelopes(testFile)
+
+		testFile.Close()
+		td := lib.Finish(ts)
+		runDuration += td.Nanoseconds()
+
+		actual := len(envelopes)
+
+		result := fmt.Sprintf("testing %s expected %d actual %d in %s",
+			testCase.filename, testCase.expected, actual, td)
+
+		if testCase.expected != actual {
+			log.Fatal(result)
+		} else {
+			fmt.Println(result)
+		}
 	}
 
-	envelopes := librn.GetNestedEnvelopes(testFile)
-
-	testFile.Close()
-	td := lib.Finish(ts)
-
-	actual := len(envelopes)
-
-	result := fmt.Sprintf("testing %s expected %d actual %d in %s",
-		testCase.filename, testCase.expected, actual, td)
-
-	if testCase.expected != actual {
-		log.Fatal(result)
-	} else {
-		fmt.Println(result)
+	if TEST_RUNS > 1 {
+		fmt.Printf("Completed %d runs of %s averaging %s/run\n",
+			TEST_RUNS, testCase.filename, lib.NanosAvgToDuration(runDuration, int64(TEST_RUNS)))
 	}
 }
