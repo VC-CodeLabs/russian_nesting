@@ -1,6 +1,7 @@
 package main
 
 import (
+	"JeffR/lib"
 	librn "JeffR/libsln"
 	"bufio"
 	"fmt"
@@ -54,6 +55,7 @@ func main() {
 }
 
 func runTest(testCase TestCase) {
+	ts := lib.Start()
 	testFile, err := os.Open(testCase.filename)
 
 	if err != nil {
@@ -62,9 +64,13 @@ func runTest(testCase TestCase) {
 
 	envelopes := librn.GetNestedEnvelopes(testFile)
 
+	testFile.Close()
+	td := lib.Finish(ts)
+
 	actual := len(envelopes)
 
-	result := fmt.Sprintf("testing %s expected %d actual %d", testCase.filename, testCase.expected, actual)
+	result := fmt.Sprintf("testing %s expected %d actual %d in %s",
+		testCase.filename, testCase.expected, actual, td)
 
 	if testCase.expected != actual {
 		log.Fatal(result)
