@@ -205,11 +205,16 @@ func testArray() {
 
 	/*****
 	o := "["
-	for i, v := range envelopes {
+	h := ENV_MAX - 10
+	for i := range envelopes {
 		if i > 0 {
 			o += ","
 		}
-		o += fmt.Sprintf("[%d,%d]", v.Width, v.Height)
+		o += fmt.Sprintf("[%d,%d]", i+1, h+1)
+		h++
+		if i > 0 && (i+1)%10 == 0 {
+			h -= 20
+		}
 	}
 	o += "]"
 	fmt.Printf("Max Envelopes: %s\n", o)

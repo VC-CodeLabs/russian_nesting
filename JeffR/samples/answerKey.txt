@@ -6,6 +6,7 @@ JeffR_HeadWontFit.txt=3
 JeffR_Jumbled.txt=3
 JeffR_MaxAllMatch.txt=1
 JeffR_MaxAllUnique.txt=100000
+JeffR_MaxChunked.txt=10
 JeffR_MiddleFits.txt=3
 JeffR_Multiline.txt=3
 JeffR_Reverse.txt=5
