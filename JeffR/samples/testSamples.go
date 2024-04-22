@@ -79,12 +79,21 @@ func main() {
 		fmt.Printf("Repeating each test case %d times\n", TEST_RUNS)
 	}
 
+	fmt.Printf("Threaded: %t\n", librn.THREADED)
+
 	for _, testCase := range testCases {
 		if len(TEST_NAME) == 0 || TEST_NAME == testCase.filename {
 			runTest(testCase)
 		}
 	}
+
+	fmt.Printf("All tests completed in %s in %d total runs with an average run of %s\n",
+		lib.NanosToDuration(allRunsDuration), allRunsCount,
+		lib.NanosAvgToDuration(allRunsDuration, int64(allRunsCount)))
 }
+
+var allRunsDuration int64 = 0
+var allRunsCount = 0
 
 func runTest(testCase TestCase) {
 
@@ -102,6 +111,8 @@ func runTest(testCase TestCase) {
 		testFile.Close()
 		td := lib.Finish(ts)
 		runDuration += td.Nanoseconds()
+		allRunsDuration += runDuration
+		allRunsCount++
 
 		actual := len(envelopes)
 
