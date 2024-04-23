@@ -3,6 +3,10 @@ package librn
 //
 // the solution impl, minus most all the layers of interfaces, details about where the data came from, &c
 //
+// I considered using a map (to eliminate duplicates),
+// but testing suggests maps in general are slower than arrays / slices
+// not to mention how much more complicated it felt and looked doing so
+//
 
 import (
 	"cmp"
@@ -90,15 +94,15 @@ func FindMaxNestedEnvelopes(envelopes Envelopes) Envelopes {
 
 		// the following check may not make much difference for most test cases,
 		// especially if threading is enabled, but definitely does when most or all can nest
-		if startingOffset > 0 && maxNestings > countOfEnvelopes-startingOffset {
-			// can't possibly find a bigger one, don't bother looking
-			if THREADED {
-				mu.Unlock()
-			}
-			break
-		}
+		cantBeABiggerNestingLeft := startingOffset > 0 && maxNestings > countOfEnvelopes-startingOffset
+
 		if THREADED {
 			mu.Unlock()
+		}
+
+		if cantBeABiggerNestingLeft {
+			// can't possibly find a bigger one, don't bother looking
+			break
 		}
 
 		if THREADED {
