@@ -1,0 +1,5 @@
+## includes only the test cases with maximum # of envelopes
+
+JeffR_MaxAllMatch.txt=1         # maximum # of envelopes, all have same dimensions
+JeffR_MaxAllUnique.txt=100000   # maximum # of envelopes, all different dimensions, all nest
+JeffR_MaxChunked.txt=10         # maximum # of envelopes, nestable in series of 10 each
