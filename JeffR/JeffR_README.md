@@ -18,7 +18,7 @@ Windows, manual input:
 `go run JeffR_RussianNesting_Solution.go`  
 // ^Z works to terminate manual input
 
-Read input from stdin (file), bash or Windows:
+Read input from stdin (file redirection), bash or Windows:
 
 `go run JeffR_RussianNesting_Solution.go < {filespec}`
 
@@ -26,7 +26,17 @@ e.g.
 
 `go run JeffR_RussianNesting_Solution.go < samples/JeffR_Alek_Example1.txt`
 
-(flip the slash(es) on Windows)
+(flip the slash(es) in the filepath on Windows)
+
+-OR-
+
+(bash specific:)
+
+`cat samples/JeffR_Alek_Example1.txt | go run JeffR_RussianNesting_Solution.go`
+
+(windows specific:)
+
+`type samples\JeffR_Alek_Example1.txt | go run JeffR_RussianNesting_Solution.go`
 
 # Envelope: Struct vs Array
 
