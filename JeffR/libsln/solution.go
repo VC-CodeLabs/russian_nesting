@@ -1,13 +1,17 @@
 package librn
 
+//
+// the solution impl, minus most all the layers of interfaces, details about where the data came from, &c
+//
+
 import (
 	"cmp"
 	"slices"
 	"sync"
 )
 
-// compare two envelopes to support sorting by size
-func envCmp(a Envelope, b Envelope) int {
+// compare two envelopes to support sorting by size (width then height)
+func CompareEnvelopes(a Envelope, b Envelope) int {
 	diff := cmp.Compare(EnvWidth(a), EnvWidth(b))
 	if diff == 0 {
 		diff = cmp.Compare(EnvHeight(a), EnvHeight(b))
@@ -15,35 +19,36 @@ func envCmp(a Envelope, b Envelope) int {
 	return diff
 }
 
-// sort the collection and return it
-func EnvSort(envelopes Envelopes) Envelopes {
+// sort the collection by width then height and return it
+func SortEnvelopes(envelopes Envelopes) Envelopes {
 	// TODO how expensive is this vs in-place sort?
-	slices.SortFunc(envelopes, envCmp)
+	slices.SortFunc(envelopes, CompareEnvelopes)
 	return envelopes
 }
 
-// strip out the duplicates (must be sorted!!!)
+// strip out the duplicates (input must be sorted!!!)
 //
 // this significantly improves performance for
 // e.g. max # envelopes all matching size
-func EnvCompact(envelopes Envelopes) Envelopes {
+func CompactEnvelopes(envelopes Envelopes) Envelopes {
 	return slices.Compact(envelopes)
 }
 
+// support threading, where each pass (w/ different starting point) is its' own thread
 var (
 	mu                 sync.Mutex
 	maxNestings        int
 	maxNestedEnvelopes Envelopes
+	wg                 sync.WaitGroup
 )
 
-var wg sync.WaitGroup
-
+// threading is optional
 var THREADED bool = true
 
 // get the maximum # of nested envelopes in the specified collection;
 //
-// the input *MUST* be sorted and ideally compacted (duplicates removed) as well
-func EnvFilter(envelopes Envelopes) Envelopes {
+// the input *MUST* be sorted by width then height and ideally compacted (duplicates removed) as well
+func FindMaxNestedEnvelopes(envelopes Envelopes) Envelopes {
 
 	// fmt.Printf("Threaded: %t\n", THREADED)
 
@@ -71,19 +76,21 @@ func EnvFilter(envelopes Envelopes) Envelopes {
 	// and if so, make it the new max
 	//
 
-	// track the max collection so far
-	// var maxNestedEnvelopes Envelopes
-
-	// how many inputs are we dealing with
+	// how many inputs are we dealing with (fighting for every µs)
 	countOfEnvelopes := len(envelopes)
 
-	// walk thru the list of inputs, using each as
-	for i := range envelopes {
+	// walk thru the list of inputs, using each position as new starting point
+	for startingOffset := range envelopes {
+
+		// threading really uglifies this :/
 
 		if THREADED {
 			mu.Lock()
 		}
-		if i > 0 && maxNestings > countOfEnvelopes-i {
+
+		// the following check may not make much difference for most test cases,
+		// especially if threading is enabled, but definitely does when most or all can nest
+		if startingOffset > 0 && maxNestings > countOfEnvelopes-startingOffset {
 			// can't possibly find a bigger one, don't bother looking
 			if THREADED {
 				mu.Unlock()
@@ -95,15 +102,18 @@ func EnvFilter(envelopes Envelopes) Envelopes {
 		}
 
 		if THREADED {
+			// starting a new thread, add it to the waitgroup
 			wg.Add(1)
-			go envFilterSection(envelopes, countOfEnvelopes, i)
+			// start the thread for this section starting at i'th offset
+			go getNestedEnvelopesInTail(envelopes, countOfEnvelopes, startingOffset)
 		} else {
-			envFilterSection(envelopes, countOfEnvelopes, i)
+			getNestedEnvelopesInTail(envelopes, countOfEnvelopes, startingOffset)
 		}
 
 	}
 
 	if THREADED {
+		// wait for all the threads to complete
 		wg.Wait()
 	}
 
@@ -112,39 +122,45 @@ func EnvFilter(envelopes Envelopes) Envelopes {
 
 }
 
-func envFilterSection(envelopes Envelopes, countOfEnvelopes int, i int) {
+// get the nested envelopes for the tail of the input starting at startingOffset'th item;
+// input collection *MUST* be sorted by width then height!!!
+func getNestedEnvelopesInTail(envelopes Envelopes, countOfEnvelopes int, startingOffset int) {
 
 	// track the set of nested envelopes
-	filteredEnvelopes := make(Envelopes, 0)
-	// track the last envelope so we can see if it will it in the current one
-	var lastEnv = Envelope{-1, -1}
-	for j := i; j < countOfEnvelopes; j++ {
-		env := envelopes[j]
-		if j > i {
-			// not the first item, will the last envelope fit in this one?
-			if EnvWidth(env) > EnvWidth(lastEnv) && EnvHeight(env) > EnvHeight(lastEnv) {
-				// last envelope would fit inside the current one-
+	nestedEnvelopes := make(Envelopes, 0)
+	// track the first/last containing envelope so we can see if it will fit inside a subsequent envelope
+	var lastContainingEnv = Envelope{-1, -1}
+	// walk the tail: starting at the offset thru the remainder of the collection
+	for ndx := startingOffset; ndx < countOfEnvelopes; ndx++ {
+		// get the envelope at this index
+		currEnvelope := envelopes[ndx]
+		if ndx > startingOffset {
+			// not the first item, will the last containing envelope fit in this one?
+			if EnvWidth(currEnvelope) > EnvWidth(lastContainingEnv) && EnvHeight(currEnvelope) > EnvHeight(lastContainingEnv) {
+				// last containing envelope would fit inside the current one-
 				// add to the list of nested envelopes
-				filteredEnvelopes = append(filteredEnvelopes, lastEnv)
-				// ...and the current envelope becomes the new one
+				nestedEnvelopes = append(nestedEnvelopes, lastContainingEnv)
+				// ...and the current envelope
+				// becomes the new container
 				// we're trying to find a fit for;
 				// if we hit the end of input without
 				// finding a fit for this one,
 				// it gets tacked on below
-				lastEnv = env
+				lastContainingEnv = currEnvelope
 			}
 		} else {
 			// first item in this run,
-			// always becomes the new initial
-			// prior item for this run
-			lastEnv = env
+			// always becomes the new initial containing (empty) envelope
+			// we're looking for the next envelope this fits inside of, if any
+			lastContainingEnv = currEnvelope
 		}
 
 		// if we're at the end of this run, tack on the last containing envelope;
 		// this will either be the first envelope (because they all match)
 		// or the most recent envelope that could contain at least one that came before
-		if j == countOfEnvelopes-1 {
-			filteredEnvelopes = append(filteredEnvelopes, lastEnv)
+		// (not necessarily the last envelope in the input collection)
+		if ndx == countOfEnvelopes-1 {
+			nestedEnvelopes = append(nestedEnvelopes, lastContainingEnv)
 		}
 	}
 
@@ -153,9 +169,9 @@ func envFilterSection(envelopes Envelopes, countOfEnvelopes int, i int) {
 	}
 
 	// first pass (if not threading) or new larger nested collection?
-	if (!THREADED && i == 0) || len(filteredEnvelopes) > maxNestings {
-		// remember the new largest nested collection
-		maxNestedEnvelopes = filteredEnvelopes
+	if (!THREADED && startingOffset == 0) || len(nestedEnvelopes) > maxNestings {
+		// remember the new largest nested collection (so far)
+		maxNestedEnvelopes = nestedEnvelopes
 		maxNestings = len(maxNestedEnvelopes)
 	}
 

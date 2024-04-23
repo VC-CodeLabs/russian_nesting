@@ -283,11 +283,11 @@ func envKeys(envMapByStruct EnvMapByStruct) Envelopes {
 // local proxies to minimize diffs during isolation work
 
 func envSort(envelopes Envelopes) Envelopes {
-	return EnvSort(envelopes)
+	return SortEnvelopes(envelopes)
 }
 
 func envFilter(envelopes Envelopes) Envelopes {
-	return EnvFilter(envelopes)
+	return FindMaxNestedEnvelopes(envelopes)
 }
 
 // ////////////////////////////////////////////////////////////////

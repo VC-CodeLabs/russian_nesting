@@ -48,7 +48,7 @@ func (x EnvArrayWithAppend) CloseData() {
 // if there are multiple such collections in the input,
 // the first one (smallest starting envelope dims) is returned
 func (x EnvArrayWithAppend) GetMaxNestedEnvelopes() Envelopes {
-	return EnvFilter(EnvCompact(EnvSort(x.envelopes)))
+	return FindMaxNestedEnvelopes(CompactEnvelopes(SortEnvelopes(x.envelopes)))
 }
 
 // get the # of max nested envelopes;

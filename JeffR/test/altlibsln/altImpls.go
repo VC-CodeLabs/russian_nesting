@@ -19,7 +19,7 @@ func (x Envelopes2dArray) CloseData() {
 }
 
 func (x Envelopes2dArray) GetNestedEnvelopes() Envelopes {
-	return nil // TODO EnvFilter(EnvSort(x.envelopes))
+	return nil // TODO FindMaxNestedEnvelopes(CompactEnvelopes(SortEnvelopes(x.envelopes)))
 }
 
 func (x Envelopes2dArray) GetNestedCount() int {
