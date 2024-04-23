@@ -38,3 +38,12 @@ e.g.
 
 `type samples\JeffR_Alek_Example1.txt | go run JeffR_RussianNesting_Solution.go`
 
+# Solution notes
+
+I wanted to use modules, so needed a go.mod, so isolated everything to a JeffR/ folder
+
+The libsln/ folder contains the solution implementation; the code that finds the max nested envelopes is in solution.go- once we have the envelope collection loaded, we find the max nested envelopes by calling `FindMaxNestedEnvelopes(CompactEnvelopes(SortEnvelopes(envelopes)))`; interfaces were used to support swapping in different solution impls during development.
+
+As noted in libsln/solution.go, I considered using a map (to filter duplicate envelopes) but testing suggested it's far less efficient vs plain ol' array / slice- I had noticed this with previous go-specific codelabs.
+
+Threading is used, but can be disabled; overall, this can of course make a big difference with large sample size, but some do actually get a little slower while others get alot faster- see the readme in test/ for additional notes including sample timings on this topic.
