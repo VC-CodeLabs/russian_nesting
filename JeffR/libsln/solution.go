@@ -5,7 +5,8 @@ package librn
 //
 // I considered using a map (to eliminate duplicates),
 // but testing suggests maps in general are slower than arrays / slices
-// not to mention how much more complicated it felt and looked doing so
+// not to mention how much more complicated it felt and looked doing so,
+// and slices.Compact can weed out the duplicates in an array / slice
 //
 
 import (
@@ -94,6 +95,9 @@ func FindMaxNestedEnvelopes(envelopes Envelopes) Envelopes {
 
 		// the following check may not make much difference for most test cases,
 		// especially if threading is enabled, but definitely does when most or all can nest
+		// e.g. with MaxAllUnique (and all fit) sample, not doing this check with threading enabled
+		// takes ~40s to complete vs ~200ms with this check enabled-
+		// well worth the locking cost in this case
 		cantBeABiggerNestingLeft := startingOffset > 0 && maxNestings > countOfEnvelopes-startingOffset
 
 		if THREADED {
