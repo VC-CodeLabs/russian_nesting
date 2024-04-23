@@ -1,0 +1,4 @@
+## the examples provided by Alek in root README.md
+JeffR_Alek_Example1.txt=3
+JeffR_Alek_Example2.txt=1
+JeffR_Alek_Example3.txt=2

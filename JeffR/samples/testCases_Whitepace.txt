@@ -1,0 +1,7 @@
+##
+## includes only the test cases where the input has "extra" whitespace / line breaks
+##
+
+JeffR_Multiline.txt=3           # multiple line breaks in the input
+JeffR_Whitespace.txt=3          # extra whitespace including line breaks in the input
+JeffR_WhitespaceOneLine.txt=3   # extra whitespace but no line breaks in the input

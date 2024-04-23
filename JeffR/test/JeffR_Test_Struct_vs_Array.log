@@ -1,0 +1,35 @@
+# output from tests comparing envelope-as-struct (designated as "{w#,h#}" below) vs envelope as array ("[w#,h#]")
+# in general, structs are consistently faster for writing, and generally faster or comparable for reading;
+# the '!0...' tail for each line is reporting how many individual test runs had a measurable duration > 0;
+# see JeffR_README.md `Envelope: Struct vs Array` section for additional details
+
+*** Average time to make [100000][w#,h#]        7.0601ms /      3 =      2.353366ms (!0      2.353366ms x      3)
+*** Average time to read [100000][w#,h#]         527.7us /      3 =         175.9us (!0         527.7us x      1)
+*** Average time to make [100000]{w#,h#}        3.7094ms /      3 =      1.236466ms (!0      1.236466ms x      3)
+*** Average time to read [100000]{w#,h#}         527.8us /      3 =       175.933us (!0         527.8us x      1)
+*** All tests completed in 12.3498ms
+*** Average time to make [100000][w#,h#]       18.8649ms /     10 =       1.88649ms (!0       1.88649ms x     10)
+*** Average time to read [100000][w#,h#]        1.5582ms /     10 =        155.82us (!0         519.4us x      3)
+*** Average time to make [100000]{w#,h#}       14.8139ms /     10 =       1.48139ms (!0       1.48139ms x     10)
+*** Average time to read [100000]{w#,h#}         519.1us /     10 =         51.91us (!0         519.1us x      1)
+*** All tests completed in 37.1902ms
+*** Average time to make [100000][w#,h#]      172.3574ms /    100 =      1.723574ms (!0      3.191803ms x     54)
+*** Average time to read [100000][w#,h#]       13.9182ms /    100 =       139.182us (!0       818.717us x     17)
+*** Average time to make [100000]{w#,h#}       134.866ms /    100 =       1.34866ms (!0      5.863739ms x     23)
+*** Average time to read [100000]{w#,h#}        6.5057ms /    100 =        65.057us (!0        6.5057ms x      1)
+*** All tests completed in 335.2335ms
+*** Average time to make [100000][w#,h#]      1.7117504s /   1000 =       1.71175ms (!0      4.389103ms x    390)
+*** Average time to read [100000][w#,h#]       137.796ms /   1000 =       137.796us (!0      1.766615ms x     78)
+*** Average time to make [100000]{w#,h#}      1.2667143s /   1000 =      1.266714ms (!0      5.344786ms x    237)
+*** Average time to read [100000]{w#,h#}        85.832ms /   1000 =        85.832us (!0      4.517473ms x     19)
+*** All tests completed in 3.302709s
+*** Average time to make [100000][w#,h#]     16.8258029s /  10000 =       1.68258ms (!0      3.668949ms x   4586)
+*** Average time to read [100000][w#,h#]      1.5971009s /  10000 =        159.71us (!0      1.758921ms x    908)
+*** Average time to make [100000]{w#,h#}     13.0758703s /  10000 =      1.307587ms (!0      1.498667ms x   8725)
+*** Average time to read [100000]{w#,h#}      1.0948865s /  10000 =       109.488us (!0       605.913us x   1807)
+*** All tests completed in 33.8820127s
+*** Average time to make [100000][w#,h#]   2m50.0427123s / 100000 =      1.700427ms (!0      2.526337ms x  67308)
+*** Average time to read [100000][w#,h#]     14.9759707s / 100000 =       149.759us (!0       963.023us x  15551)
+*** Average time to make [100000]{w#,h#}    2m9.1465931s / 100000 =      1.291465ms (!0      1.389016ms x  92977)
+*** Average time to read [100000]{w#,h#}     10.7897541s / 100000 =       107.897us (!0       567.344us x  19018)
+*** All tests completed in 5m38.0689889s

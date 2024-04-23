@@ -1,0 +1,15 @@
+##
+## includes only the edge cases, minus those with Max # of envelopes
+##
+
+JeffR_EndsFit.txt=2             # only the first and last (by width) will nest
+JeffR_HeadWontFit.txt=3         # the smallest envelope (by width) won't fit
+JeffR_Jumbled.txt=3             # envelopes are in random order by size
+JeffR_MiddleFits.txt=3          # the smallest and largest envelopes (by width) can't nest (by height)
+JeffR_Multiline.txt=3           # multiple line breaks in the input
+JeffR_Reverse.txt=5             # the envelopes are in reverse order by dimensions; all nest
+JeffR_Singleton.txt=1           # contains only one envelopes
+JeffR_TailWontFit.txt=3         # the largest envelope (by width) can't nest (by height)
+JeffR_Whitespace.txt=3          # extra whitespace including line breaks in the input
+JeffR_WhitespaceOneLine.txt=3   # extra whitespace but no line breaks in the input
+
