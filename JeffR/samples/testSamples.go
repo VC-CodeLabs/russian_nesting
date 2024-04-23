@@ -193,7 +193,7 @@ func runTest(testCase TestCase, repeat int) {
 		}
 
 		// get the max nested envelopes collection from the algorithm impl
-		envelopes := librn.GetNestedEnvelopes(testFile)
+		envelopes := librn.GetMaxNestedEnvelopes(testFile)
 		testFile.Close()
 
 		//

@@ -93,7 +93,7 @@ func testInterface() {
 
 		envs.CloseData()
 
-		nestedEnvelopes := envs.GetNestedEnvelopes()
+		nestedEnvelopes := envs.GetMaxNestedEnvelopes()
 
 		td := finish(ts)
 
@@ -114,7 +114,7 @@ func testInterface() {
 
 		envs.CloseData()
 
-		nestedEnvelopes := envs.GetNestedEnvelopes()
+		nestedEnvelopes := envs.GetMaxNestedEnvelopes()
 
 		td := finish(ts)
 
@@ -135,7 +135,7 @@ func testInterface() {
 
 		envs.CloseData()
 
-		nestedEnvelopes := envs.GetNestedEnvelopes()
+		nestedEnvelopes := envs.GetMaxNestedEnvelopes()
 
 		td := finish(ts)
 
@@ -156,7 +156,7 @@ func testInterface() {
 
 		envs.CloseData()
 
-		nestedEnvelopes := envs.GetNestedEnvelopes()
+		nestedEnvelopes := envs.GetMaxNestedEnvelopes()
 
 		td := finish(ts)
 
@@ -177,7 +177,7 @@ func testInterface() {
 
 		envs.CloseData()
 
-		nestedEnvelopes := envs.GetNestedEnvelopes()
+		nestedEnvelopes := envs.GetMaxNestedEnvelopes()
 
 		td := finish(ts)
 

@@ -13,9 +13,9 @@ import (
 // get the max nested envelope collection from
 // a set of envelopes defined in an input file
 // (which may be stdin!)
-func GetNestedEnvelopes(file *os.File) Envelopes {
+func GetMaxNestedEnvelopes(file *os.File) Envelopes {
 	// instantiate our manager
-	rnMgr := IRussianNestingManager{}
+	rnMgr := RussianNestingManager{}
 
 	// prep data storage
 	rnMgr.InitData()
@@ -25,7 +25,7 @@ func GetNestedEnvelopes(file *os.File) Envelopes {
 	rnMgr.CloseData()
 
 	// get the max nested envelope collection
-	envelopes := rnMgr.GetNestedEnvelopes()
+	envelopes := rnMgr.GetMaxNestedEnvelopes()
 
 	return envelopes
 }

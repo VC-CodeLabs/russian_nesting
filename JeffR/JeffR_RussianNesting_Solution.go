@@ -24,9 +24,10 @@ func main() {
 	}
 
 	// get the max nested envelopes from stdin
-	envelopes := librn.GetNestedEnvelopes(os.Stdin)
+	envelopes := librn.GetMaxNestedEnvelopes(os.Stdin)
 
 	if lib.VERBOSE {
+		// verbose output dumps the max nested envelope collection
 		fmt.Println("Max Nested Envelopes:")
 		fmt.Print("[ ")
 		for i, envelope := range envelopes {

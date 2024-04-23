@@ -1,10 +1,15 @@
 package librn
 
 //
-// defines an interface for the solution,
+// defines an interface for the solution algorithm,
 // allowing for different impls to be swapped in and tested
 //
-type RussianNesting interface {
+// NOTE GetMaxNestedCount() will generally be impl'd as
+// len(GetMaxNestedEnvelopes()), so if you want both,
+// get the length yourself else you're *probably*
+// finding the max nested collection twice!
+//
+type IRussianNestingAlgo interface {
 	// prepare data storage
 	InitData()
 	// add a new envelope to data storage
@@ -12,9 +17,9 @@ type RussianNesting interface {
 	// finalize data storage
 	CloseData()
 	// get the max nested envelopes collection
-	GetNestedEnvelopes() Envelopes
+	GetMaxNestedEnvelopes() Envelopes
 	// get the count of max nested envelopes
-	GetNestedCount() int
+	GetMaxNestedCount() int
 }
 
 // define an implementation of the solution
@@ -23,7 +28,10 @@ type EnvArrayWithAppend struct {
 	envelopes Envelopes
 }
 
-func (x EnvArrayWithAppend) InitData() {
+// prepare the data storage
+func (x *EnvArrayWithAppend) InitData() {
+	// not really necessary the first time, but allows for reuse
+	(*x).envelopes = make(Envelopes, 0)
 }
 
 // appends a new envelope
@@ -31,21 +39,30 @@ func (x *EnvArrayWithAppend) PutDataItem(w int, h int) {
 	(*x).envelopes = append(x.envelopes, Envelope{w, h})
 }
 
+// finalize the dateset
 func (x EnvArrayWithAppend) CloseData() {
 	// this method is intentionally empty
 }
 
-func (x EnvArrayWithAppend) GetNestedEnvelopes() Envelopes {
+// get the max collection by # of nested envelopes;
+// if there are multiple such collections in the input,
+// the first one (smallest starting envelope dims) is returned
+func (x EnvArrayWithAppend) GetMaxNestedEnvelopes() Envelopes {
 	return EnvFilter(EnvCompact(EnvSort(x.envelopes)))
 }
 
-func (x EnvArrayWithAppend) GetNestedCount() int {
-	return len(x.GetNestedEnvelopes())
+// get the # of max nested envelopes;
+// NOTE this is impl'd as len(GetMaxNestedEnvelopes())
+// so if you want both the collection and count,
+// get the count locally!!!
+func (x EnvArrayWithAppend) GetMaxNestedCount() int {
+	return len(x.GetMaxNestedEnvelopes())
 }
 
 // define an implementation of the solution
 // that preallocates the data storage
-// rather than using append every time we add a new item
+// rather than using append every time we add a new item;
+// testing indicates this can make a difference with max collections
 type EnvArrayPreAlloc struct {
 	base      EnvArrayWithAppend
 	itemCount int
@@ -54,7 +71,8 @@ type EnvArrayPreAlloc struct {
 // preallocates data storage reserving space for ENV_MAX Envelope objects
 func (x *EnvArrayPreAlloc) InitData() {
 	(*x).base.envelopes = make(Envelopes, ENV_MAX)
-	// (*x).itemCount = 0
+	// allow for reuse
+	(*x).itemCount = 0
 }
 
 // adds new envelope to next available storage slot
@@ -68,12 +86,14 @@ func (x *EnvArrayPreAlloc) CloseData() {
 	(*x).base.envelopes = x.base.envelopes[:x.itemCount]
 }
 
-func (x EnvArrayPreAlloc) GetNestedEnvelopes() Envelopes {
-	return x.base.GetNestedEnvelopes()
+// delegates to base
+func (x EnvArrayPreAlloc) GetMaxNestedEnvelopes() Envelopes {
+	return x.base.GetMaxNestedEnvelopes()
 }
 
-func (x EnvArrayPreAlloc) GetNestedCount() int {
-	return x.base.GetNestedCount()
+// delegates to base
+func (x EnvArrayPreAlloc) GetMaxNestedCount() int {
+	return x.base.GetMaxNestedCount()
 }
 
 //////////////////////////////////////////////////////////////////
